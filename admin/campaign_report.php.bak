@@ -1,0 +1,893 @@
+<?php
+include_once "path.php";
+
+$form = $_SERVER[PHP_SELF];
+$list = str_replace("form","list",$form);
+$table = "nfor_campaign";
+$id = "cp_id";
+
+$id_value = $$id;
+
+if($id_value){
+	$write = sql_fetch("select * from $table where $id='{$id_value}'");
+}
+
+//리뷰어 선정
+if($mode=="list_asign"){
+	demo_check_json();
+	for($i=0; $i<count($chk); $i++){
+		$k = $_POST['chk'][$i];
+		review_asign($_POST[rv_id][$k]);
+	}
+	json_return("리뷰어 선정이 완료되었습니다\n선택된 신청서는 리뷰어 선정목록 메뉴로 이동되었습니다","ok");
+}
+//리뷰어 미선정
+if($mode=="list_cancel"){
+	demo_check_json();
+	for($i=0; $i<count($chk); $i++){
+		$k = $_POST['chk'][$i];
+		review_cancel($_POST[rv_id][$k]);
+	}
+	json_return("리뷰어 미선정 처리었습니다","ok");
+}
+
+// 성별
+$que = sql_query("select rv_mb_sex, count(*) as cnt from nfor_review where rv_cp_id='$write[cp_id]' group by rv_mb_sex");
+while($data = sql_fetch_array($que)){
+
+	if($data[rv_mb_sex]=="M"){
+		$text = "남자";
+	} elseif($data[rv_mb_sex]=="F"){
+		$text = "여자";
+	} else{
+		$text = "미입력";
+	}
+
+	$sex_data[text][] = $text;
+	$sex_data[cnt][] = $data[cnt];
+}
+
+
+// 연령별
+$que = sql_query("select rv_mb_age, count(*) as cnt from nfor_review where rv_cp_id='$write[cp_id]' group by rv_mb_age");
+while($data = sql_fetch_array($que)){
+	$age_data[text][] = $data[rv_mb_age]?$data[rv_mb_age]."대":"미입력";
+	$age_data[cnt][] = $data[cnt];
+}
+
+
+// 지역별
+$que = sql_query("select rv_mb_area, count(*) as cnt from nfor_review where rv_cp_id='$write[cp_id]' group by rv_mb_area");
+while($data = sql_fetch_array($que)){
+	$area_data[text][] = $data[rv_mb_area]?$data[rv_mb_area]:"미입력";
+	$area_data[cnt][] = $data[cnt];
+}
+
+
+
+$admin[mb_level][""] = "미입력";
+$que = sql_query("select * from nfor_level where 1 order by lv_rank asc");
+while($row = sql_fetch_array($que)){
+	$admin[mb_level][$row[lv_id]] = $row[lv_name];
+}
+
+// 레벨
+$que = sql_query("select rv_mb_level, count(*) as cnt from nfor_review where rv_cp_id='$write[cp_id]' group by rv_mb_level");
+while($data = sql_fetch_array($que)){
+	$level_data[text][] = $admin[mb_level][$data[rv_mb_level]];
+	$level_data[cnt][] = $data[cnt];
+}
+
+
+//공통 - 트래픽 테이블 추출 2023-01-20
+$traffic_y_w = date("Y_W",strtotime($write[cp_insert_datetime]));
+$traffic_table = "nfor_traffic_".$traffic_y_w;
+//echo "<!-- traffic_table : ". $traffic_table ." -->";
+
+// 디바이스별 2023-01-20
+$que = sql_query("select tr_device, count(*) as tot_device_count from {$traffic_table} where tr_cp_id = '$write[cp_id]' group by tr_device;");
+while($data = sql_fetch_array($que)){
+
+	if($data[tr_device]=="pc"){
+		$text = "PC";
+	} else{
+		$text = "MOBILE";
+	}
+
+	$device_data[text][] = $text;
+	$device_data[cnt][] = $data[tot_device_count];
+}
+
+// 시간대별 2023-01-20
+$sql = "select ifNull(T2.hour, T1.n) as hour, ifNull(T2.tot_hour_count, 0) as tot_hour_count
+from (
+	select @N:=@N+1 as n from {$traffic_table},
+    (select @N:=-1 from dual) NN limit 24
+) as T1
+left outer join (
+	select hour(tr_datetime) as hour, count(*) as tot_hour_count from {$traffic_table} where tr_cp_id = '$write[cp_id]' group by hour
+    ) as T2 on T1.n = T2.hour
+order by T1.n asc";
+$que = sql_query($sql);
+while($data = sql_fetch_array($que)){
+	$time_data[text][] = $data[hour]."시";
+	$time_data[cnt][] = $data[tot_hour_count];
+}
+
+// 요일별 2023-01-20
+$sql = "select
+	case dayofweek(tr_datetime)
+		when 1 then '일요일'
+        when 2 then '월요일'
+        when 3 then '화요일'
+        when 4 then '수요일'
+        when 5 then '목요일'
+        when 6 then '금요일'
+        when 7 then '토요일'
+	end as DateRange, count(*) as tot_dayw_count
+from {$traffic_table}
+where tr_cp_id = '$write[cp_id]'
+group by dayofweek(tr_datetime)";
+$que = sql_query($sql);
+while($data = sql_fetch_array($que)){
+	$dayw_data[text][] = $data[DateRange];
+	$dayw_data[cnt][] = $data[tot_dayw_count];
+}
+
+// 월별 2023-01-20
+$sql = "SELECT DATE_FORMAT(tr_date, '%Y-%m') AS date, count(*) AS tot_month_count
+FROM {$traffic_table}
+where tr_cp_id = '$write[cp_id]'
+GROUP BY DATE_FORMAT(tr_date, '%Y-%m')";
+$que = sql_query($sql);
+while($data = sql_fetch_array($que)){
+	$month_data[text][] = $data[date];
+	$month_data[cnt][] = $data[tot_month_count];
+}
+
+// 일별 2023-01-20
+$sql = "SELECT tr_date AS date, count(*) AS tot_day_count
+FROM {$traffic_table}
+where tr_cp_id = '$write[cp_id]'
+GROUP BY tr_date order by tr_date asc";
+$que = sql_query($sql);
+while($data = sql_fetch_array($que)){
+	$day_data[text][] = $data[date];
+	$day_data[cnt][] = $data[tot_day_count];
+}
+
+// 누적성과통계 2023-01-20
+$sql = "SELECT count(*) AS tot_mem_count, B.mb_name
+FROM {$traffic_table} A	inner join nfor_member B on A.tr_mb_no = B.mb_no
+where tr_cp_id = '$write[cp_id]' GROUP BY B.mb_name";
+//echo "<!-- sql : ". $sql ." -->";
+$que = sql_query($sql);
+while($data = sql_fetch_array($que)){
+	$blogid_data[text][] = $data[mb_name];
+	$blogid_data[cnt][] = $data[tot_mem_count];
+}
+
+include_once "head.php";
+?>
+
+<style>
+/* Default Style */
+.f24{font-size:24px;}
+.txt_num{font-family: "montserrat"; font-weight:300;}
+.report_wrap{ font-family: 'Spoqa Han Sans';}
+.report_wrap li{padding:10px 0px; position:relative;}
+.report_wrap .cp_subject{font-size:30px;   font-family: 'notokr-demilight'; display:block; line-height:50px;}
+.report_wrap .cp_id{display:inline-block; padding:5px 10px; background-color:#666; color:#fff; border-radius:15px; font-family: "montserrat";}
+.report_wrap .cp_subject b{font-weight:normal; font-size:14px; margin-left:15px;}
+.report_wrap .sns_icon_wrap { margin-top:5px; display:inline-block}
+.report_wrap .sns_icon_wrap span{border-radius:20px; margin-left:5px; display:inline-block}
+.report_wrap .sns_icon_wrap .blog_icon { background-color:#fff; border:solid 1px #2ba406; color:#2ba406; margin:0px 1px; padding:3px 8px; font-size:13px; }
+.report_wrap .sns_icon_wrap .instagram_icon { background-color:#fff; border:solid 1px #ff3478; color:#ff3478; margin:0px 1px; padding:3px 8px; font-size:13px; }
+.report_wrap .sns_icon_wrap .youtube_icon { background-color:#fff; border:solid 1px #f41515; color:#f41515; margin:0px 1px; padding:3px 8px; font-size:13px; }
+.report_wrap .cp_order{height:20px; width:20px; display:inline-block; position:relative; vertical-align:-10px;}
+.report_wrap .cp_order{width:40px; height:40px; background:#333}
+.report_wrap .cp_order:before{content:''; height:4px; width:20px; background:#fff; display:block; position:absolute; top:10px; left:10px; box-shadow:0 8px #fff, 0 16px #fff;-webkit-box-shadow:0 8px #fff, 0 16px #fff;-moz-box-shadow:0 8px #fff, 0 16px #fff; }
+.report_wrap .f_right{position: absolute; top:0px; right:10px; text-align:center;}
+.report_wrap .f_right .cp_recruit{font-size:16px; letter-spacing:-1px;}
+.report_wrap .f_right .cp_click{display:block; font-size:12px; background-color:#666; color:#fff; padding:5px 10px; border-radius:20px;margin-bottom:10px;}
+.b_tb{padding:20px 0px;}
+.b_tb table {width:100%; border-collapse:collapse; border-top:2px solid #6f6f6f; border-bottom:1px solid #ccc;}
+.b_tb table > thead > tr > th {border-bottom:1px solid #ccc; border-left:1px solid #e4e4e4; background:#f9fafc; height:100px; padding:50px 10px; text-align:center; font-size:14px; font-weight:normal; color:#333; line-height:1.6;}
+.b_tb table > tbody > tr > th {border-top:1px solid #e4e4e4; border-left:1px solid #e4e4e4; padding:20px 0 20px 0px; text-align:left; font-size:14px; font-weight:400; color:#333; line-height:1.6; text-align:center;}
+.b_tb table > tbody > tr > td {border-top:1px solid #e4e4e4; border-left:1px solid #e4e4e4; padding:20px; text-align:center; font-size:14px; color:#666; line-height:1.6;}
+.b_tb table > tbody > tr > th:first-child{border-left:none;}
+.b_tb table > tbody > tr > td:first-child {border-left:none;}
+.b_tb table > tbody > tr:first-child > th,
+.b_tb table > tbody > tr:first-child > td {border-top:none;}
+.blue {color: #3399ff !important; display:inline-block;}
+.btn{text-align:center; width:100%;}
+.print_btn{display:block; width:250px; padding:15px; background-color:#666; color:#fff; font-size:18px; margin:0px auto;}
+.print_btn:hover{color:#fff;}
+</style>
+
+<div id="print_box">
+
+
+	<div class="report_wrap">
+	<ul>
+		<li>
+			<span class="cp_id"><?=$write[cp_id]?></span>
+			<span class="cp_id"><?=$nfor[cp_type][$write[cp_type]]?></span>
+			<?php if($write[cp_point]){ ?><span class="cp_id">+ <?=$write[cp_point]?>P</span><?php } ?>
+			<div class="sns_icon_wrap">
+				<? if($write[cp_media_blog]){ ?><span class="blog_icon">블로그</span><? } ?>
+				<? if($write[cp_media_instagram]){ ?><span class="instagram_icon">인스타그램</span><? } ?>
+				<? if($write[cp_media_youtube]){ ?><span class="youtube_icon">유튜브</span><? } ?>
+			</div>
+		</li>
+		<li>
+			<span class="cp_subject"><?=$write[cp_subject]?><b><?=$write[cp_description]?></b></span>
+			<div class="f_right">
+			<span class="cp_click">조회 : <?=number_format($write[cp_click])?> 리뷰 : <?=$write[cp_review]?>개</span>
+			<span class="cp_recruit">신청 <b class="txt_num f24"><?=$write[cp_order]?></b> / 모집 <b class="txt_num f24"><?=$write[cp_recruit]?></b></span>
+			</div>
+		</li>
+	</ul>
+	</div>
+
+
+	<div class="b_tb">
+		<table>
+			<tr>
+				<th>신청기간</th>
+				<th>선정자 발표</th>
+				<th>리뷰 등록기간</th>
+				<th>캠페인 결과발표</th>
+			</tr>
+			<tr>
+				<td>
+				<b class="txt_num"><?=substr($write[cp_sdatetime],0,10)?>~<?=substr($write[cp_edatetime],0,10)?></b>
+				<br><span class="blue">신청인원 : <b class="txt_num"><?=number_format($write[cp_review_wait])?></b>명</span>
+				</td>
+				<td>
+				<b class="txt_num"><?=substr($write[cp_pick_datetime],0,10)?></b>
+				<br><span class="blue">선정인원 : <b class="txt_num"><?=number_format($write[cp_review_asign])?></b>명</span>
+				</td>
+				<td>
+				<b class="txt_num"><?=substr($write[cp_contents_sdatetime],0,10)?>~<?=substr($write[cp_contents_edatetime],0,10)?></b>
+				<br><span class="blue">등록인원 : <b class="txt_num"><?=number_format($write[cp_review_post])?></b>명</span>
+				</td>
+				<td>
+				<b class="txt_num"><?=substr($write[cp_result_datetime],0,10)?></b>
+				<br><span class="blue">등록확인인원: <b class="txt_num"><?=number_format($write[cp_review_post_asign])?></b>명</span>
+				</td>
+			</tr>
+		</table>
+	</div>
+
+
+	<div style="overflow:hidden; margin-top:40px;">
+		<div style="width:50%; float:left;">
+			<canvas id="sex_chart"></canvas>
+		</div>
+		<div style="width:50%; float:left;">
+			<canvas id="level_chart"></canvas>
+		</div>
+	</div>
+
+	<hr>
+
+
+	<div style="overflow:hidden; margin-top:40px;">
+		<div style="width:50%; float:left;">
+			<canvas id="age_chart"></canvas>
+		</div>
+		<div style="width:50%; float:left;">
+			<canvas id="area_chart"></canvas>
+		</div>
+	</div>
+
+	<hr>
+
+	<div style="overflow:hidden; margin-top:40px;">
+		<div style="width:50%; float:left;">
+			<canvas id="time_chart"></canvas>
+		</div>
+		<div style="width:50%; float:left;">
+			<canvas id="dayw_chart"></canvas>
+		</div>
+	</div>
+
+	<hr>
+
+	<div style="overflow:hidden; margin-top:40px;">
+		<div style="width:50%; float:left;">
+			<canvas id="month_chart"></canvas>
+		</div>
+		<div style="width:50%; float:left;">
+			<canvas id="device_chart"></canvas>
+		</div>
+	</div>
+
+	<hr>
+
+	<div style="overflow:hidden; margin-top:40px;">
+		<div style="width:50%; float:left;">
+			<canvas id="blogid_chart"></canvas>
+		</div>
+		<div style="width:50%; float:left;">
+			<canvas id="day_chart"></canvas>
+		</div>
+	</div>
+
+	<hr>
+
+
+
+
+	<div class="b_tb">
+		<form name="flist" id="flist" method="post">
+		<?=admin_get()?>
+		<table >
+			<tr>
+				<th>
+					<?=admin_checkbox($row,"chkall")?>
+					<br>신청번호<br>(이름)
+				</th>
+				<th>캠페인명<br>(캠페인코드)<br>[인플루언서 등급]</th>
+				<th>회원정보</th>
+				<th>신청채널<br>(등록된 리뷰 URL)</th>
+				<!--<th>배송지정보</th>
+				<th>신청자 한마디/신청필수 정보</th> -->
+				<th>신청일<br>(선정일)</th>
+				<th>리뷰URL등록일<br>(리뷰등록확인일)</th>
+				<th width="350">네이버 블로그 방문자 통계</th>
+			</tr>
+			<?php
+			$result = sql_query("select * from nfor_review where rv_cp_id='$write[cp_id]'");
+//			$result = sql_query("select * from nfor_review where rv_cp_id='$write[cp_id]' and rv_step='2'");
+			for($i=0; $row=sql_fetch_array($result); $i++){
+
+				//회원정보 추출
+				$result_mem = sql_fetch("select * from nfor_member where mb_no='".$row[rv_mb_no]."' limit 1");
+
+				//네이버 블로그ID 추출
+				if(strpos($row[rv_channel], "blog.naver.com") == true) {
+					$blog_id = substr(parse_url($row[rv_channel], PHP_URL_PATH), 1);
+					$blog_id = str_replace("/", "", $blog_id);
+				} else {
+					$blog_id = "";
+				}
+
+				//리뷰어 선정
+				$row["chk[]"] = $i;
+				$row["rv_id[{$i}]"] = $row[rv_id];
+			?>
+			<tr class="<?php echo $blog_id;?>">
+				<td>
+					<?=admin_checkbox($row,"chk[]","chk")?><?=admin_hidden($row,"rv_id[{$i}]")?>
+					<br><b class="txt_num"><?=$row[rv_id]?><b>
+					<br>(<?=$result_mem[mb_name]?>)
+				</td>
+				<td>
+					<?=$row[rv_cp_subject]?>
+					<br><b class="txt_num">(<?=$row[rv_cp_id]?>)<b>
+					<br>[<?=$result_mem[mb_level]?>]
+				</td>
+				<td>
+					<?=campaign_member_info($row)?>
+				</td>
+				<td class="textleft">
+					<a href="<?=$row[rv_channel]?>" target="_blank" class="txt_num"><?=$row[rv_channel]?></a>
+					<br>(<a href="<?=$row[rv_url]?>" target="_blank"><?=$row[rv_url]?></a>)
+				</td>
+				<!--<td class="textleft">
+				<?=$row[rv_dy_name]?> <?=$row[rv_dy_hp]?><br>
+				<?=$row[rv_dy_zip]?> <?=$row[rv_dy_addr1]?> <?=$row[rv_dy_addr2]?>
+				</td>
+				<td><?=admin_textarea($row,"rv_msg")?><?=admin_textarea($row,"rv_memo")?></td> -->
+				<td>
+					<b class="txt_num"><?=substr($row[rv_datetime],0,10)?>
+					<br>(<?=substr($row[rv_asign_datetime],0,10)?>)<b>
+				</td>
+				<td>
+					<b class="txt_num"><?=substr($row[rv_reg_datetime],0,10)?>
+					<br>(<?=substr($row[rv_confirm_datetime],0,10)?>)</b>
+				</td>
+				<td style="padding:0;">
+				<?php
+					if($blog_id){
+				?>
+					<div style="width:100%;">
+						<canvas id="blog_chart_<?php echo $blog_id;?>" data-ref="<?php echo $blog_id;?>"></canvas>
+						<br><span id="blog_totalcount_<?php echo $blog_id;?>" style="font-weight:bold; color:orange;"></span>
+					</div>
+				<?php
+					}
+				?>
+				</td>
+			</tr>
+		<?php } ?>
+		</table>
+		</form>
+
+	</div>
+
+
+</div>
+
+<!--div class="btn">
+<a href="javascript:printArea()" class="print_btn">인쇄하기</a>
+</div-->
+
+<style>
+.btn1 {
+    border-radius: 0;
+    padding: 5px 12px 4px;
+}
+</style>
+
+<div class="bottom_btn">
+
+	<div class="form-inline">
+	<?php if($member[mb_admin] >= $config[cf_review_asign]){ ?>
+	<?=admin_button("list_asign", "리뷰어 선정", "btn1 btn-lg btn-red")?>
+	<?php } ?>
+
+	<?php if($member[mb_admin] >= $config[cf_review_cancel]){ ?>
+	<?=admin_button("list_cancel", "리뷰어 미선정", "btn1 btn-lg btn-black")?>
+	<?php } ?>
+	</div>
+
+</div>
+
+
+<script>
+function printArea()
+{
+ window.open("campaign_print.php", "print_open","width=800,height=700,top=0,left=0,noresizable,toolbar=no,status=no,scrollbars=yes,directory=no");
+}
+</script>
+
+
+
+
+
+<script>
+/* 성별 */
+var config = {
+	type: 'doughnut',
+	data: {
+		datasets: [{
+			data: [<?php for($i=0; $i<count($sex_data[text]); $i++){ echo $sex_data[cnt][$i].","; } ?>],
+			backgroundColor: [
+				window.chartColors.blue,
+				window.chartColors.red,
+				window.chartColors.yellow,
+				window.chartColors.green,
+				window.chartColors.orange,
+			],
+			label: '성별'
+		}],
+		labels: [<?php for($i=0; $i<count($sex_data[text]); $i++){ echo "'".$sex_data[text][$i]."',"; } ?>]
+	},
+	options: {
+		responsive: true,
+		legend: {
+			position: 'top',
+		},
+		title: {
+			display: true,
+			text: '성별'
+		},
+		animation: {
+			animateScale: true,
+			animateRotate: true
+		}
+	}
+};
+/* 성별 */
+
+/* 연령별 */
+var age_data = {
+	labels: [<?php for($i=0; $i<count($age_data[text]); $i++){ echo "'".$age_data[text][$i]."',"; } ?>],
+	datasets: [{
+		label: '연령별',
+		backgroundColor: window.chartColors.red,
+		data: [<?php for($i=0; $i<count($age_data[text]); $i++){ echo $age_data[cnt][$i].","; } ?>]
+	} ]
+};
+/* 연령별 */
+
+/*지역별*/
+var area_data = {
+	labels: [<?php for($i=0; $i<count($area_data[text]); $i++){ echo "'".$area_data[text][$i]."',"; } ?>],
+	datasets: [{
+		label: '지역별',
+		backgroundColor: window.chartColors.blue,
+		data: [<?php for($i=0; $i<count($area_data[text]); $i++){ echo $area_data[cnt][$i].","; } ?>]
+	}]
+};
+/*지역별*/
+
+/*레벨별*/
+var level_config = {
+	type: 'pie',
+	data: {
+		datasets: [{
+			data: [<?php for($i=0; $i<count($level_data[text]); $i++){ echo $level_data[cnt][$i].","; } ?>],
+			backgroundColor: [
+				window.chartColors.red,
+				window.chartColors.orange,
+				window.chartColors.yellow,
+				window.chartColors.green,
+				window.chartColors.blue,
+			],
+			label: 'Dataset 1'
+		}],
+		labels: [<?php for($i=0; $i<count($level_data[text]); $i++){ echo "'".$level_data[text][$i]."',"; } ?>]
+	},
+	options: {
+		responsive: true
+	}
+};
+/*레벨별*/
+
+/*디바이스별*/
+var device_config = {
+	type: 'doughnut',
+	data: {
+		datasets: [{
+			data: [<?php for($i=0; $i<count($device_data[text]); $i++){ echo $device_data[cnt][$i].","; } ?>],
+			backgroundColor: [
+				window.chartColors.blue,
+				window.chartColors.red,
+			],
+			label: '디바이스별'
+		}],
+		labels: [<?php for($i=0; $i<count($device_data[text]); $i++){ echo "'".$device_data[text][$i]."',"; } ?>]
+	},
+	options: {
+		responsive: true,
+		legend: {
+			position: 'top',
+		},
+		title: {
+			display: true,
+			text: '디바이스별'
+		},
+		animation: {
+			animateScale: true,
+			animateRotate: true
+		}
+	}
+};
+/*디바이스별*/
+
+/* 시간대별 */
+var time_data = {
+	labels: [<?php for($i=0; $i<count($time_data[text]); $i++){ echo "'".$time_data[text][$i]."',"; } ?>],
+	datasets: [{
+		label: '시간대별',
+		backgroundColor: window.chartColors.red,
+		data: [<?php for($i=0; $i<count($time_data[text]); $i++){ echo $time_data[cnt][$i].","; } ?>]
+	} ]
+};
+/* 시간대별 */
+
+/* 요일별 */
+var dayw_data = {
+	labels: [<?php for($i=0; $i<count($dayw_data[text]); $i++){ echo "'".$dayw_data[text][$i]."',"; } ?>],
+	datasets: [{
+		label: '요일별',
+		backgroundColor: window.chartColors.blue,
+		data: [<?php for($i=0; $i<count($dayw_data[text]); $i++){ echo $dayw_data[cnt][$i].","; } ?>]
+	} ]
+};
+/* 요일별 */
+
+/* 월별 */
+var month_data = {
+	labels: [<?php for($i=0; $i<count($month_data[text]); $i++){ echo "'".$month_data[text][$i]."',"; } ?>],
+	datasets: [{
+		label: '월별',
+		backgroundColor: window.chartColors.blue,
+		data: [<?php for($i=0; $i<count($month_data[text]); $i++){ echo $month_data[cnt][$i].","; } ?>]
+	} ]
+};
+
+/*일별*/
+var day_data = {
+	labels: [<?php for($i=0; $i<count($day_data[text]); $i++){ echo "'".$day_data[text][$i]."',"; } ?>],
+	datasets: [{
+		label: '일별',
+		backgroundColor: window.chartColors.blue,
+		data: [<?php for($i=0; $i<count($day_data[text]); $i++){ echo $day_data[cnt][$i].","; } ?>]
+	}]
+};
+
+
+/*누적성과통계*/
+var blogid_data = {
+	labels: [<?php for($i=0; $i<count($blogid_data[text]); $i++){ echo "'".$blogid_data[text][$i]."',"; } ?>],
+	datasets: [{
+		label: '누적성과통계',
+		backgroundColor: window.chartColors.blue,
+		data: [<?php for($i=0; $i<count($blogid_data[text]); $i++){ echo $blogid_data[cnt][$i].","; } ?>]
+	}]
+};
+/*누적성과통계*/
+
+
+
+
+window.onload = function() {
+	/*도넛챠트*/
+	/* 성별 */
+	var sex_chart = document.getElementById('sex_chart').getContext('2d');
+	window.myDoughnut = new Chart(sex_chart, config);
+
+	/* 디바이스별 */
+	var device_chart = document.getElementById('device_chart').getContext('2d');
+	window.myDoughnut2 = new Chart(device_chart, device_config);
+	/*도넛챠트*/
+
+
+	/*막대챠트*/
+	/* 연령별 */
+	var age_chart = document.getElementById('age_chart').getContext('2d');
+	window.myBar = new Chart(age_chart, {
+		type: 'bar',
+		data: age_data,
+		options: {
+			title: {
+				display: true,
+				text: '연령별'
+			},
+			tooltips: {
+				mode: 'index',
+				intersect: false
+			},
+			responsive: true,
+			scales: {
+				xAxes: [{
+					stacked: true,
+				}],
+				yAxes: [{
+					stacked: true
+				}]
+			}
+		}
+	});
+
+	/* 시간대별 */
+	var time_chart = document.getElementById('time_chart').getContext('2d');
+	window.myBar = new Chart(time_chart, {
+		type: 'bar',
+		data: time_data,
+		options: {
+			title: {
+				display: true,
+				text: '시간대별'
+			},
+			tooltips: {
+				mode: 'index',
+				intersect: false
+			},
+			responsive: true,
+			scales: {
+				xAxes: [{
+					stacked: true,
+				}],
+				yAxes: [{
+					stacked: true
+				}]
+			}
+		}
+	});
+
+	/* 요일별 */
+	var dayw_chart = document.getElementById('dayw_chart').getContext('2d');
+	window.myBar = new Chart(dayw_chart, {
+		type: 'bar',
+		data: dayw_data,
+		options: {
+			title: {
+				display: true,
+				text: '요일별'
+			},
+			tooltips: {
+				mode: 'index',
+				intersect: false
+			},
+			responsive: true,
+			scales: {
+				xAxes: [{
+					stacked: true,
+				}],
+				yAxes: [{
+					stacked: true
+				}]
+			}
+		}
+	});
+
+
+	/* 월별 */
+	var month_chart = document.getElementById('month_chart').getContext('2d');
+	window.myBar = new Chart(month_chart, {
+		type: 'bar',
+		data: month_data,
+		options: {
+			title: {
+				display: true,
+				text: '월별'
+			},
+			tooltips: {
+				mode: 'index',
+				intersect: false
+			},
+			responsive: true,
+			scales: {
+				xAxes: [{
+					stacked: true,
+				}],
+				yAxes: [{
+					stacked: true
+				}]
+			}
+		}
+	});
+	/*막대챠트*/
+
+
+	/*가로챠트*/
+	//지역별
+	var area_chart = document.getElementById('area_chart').getContext('2d');
+	window.myHorizontalBar = new Chart(area_chart, {
+		type: 'horizontalBar',
+		data: area_data,
+		options: {
+			responsive: true,
+			legend: {
+				position: 'right',
+			},
+			title: {
+				display: true,
+				text: '지역별'
+			}
+		}
+	});
+
+	//일별
+	var day_chart = document.getElementById('day_chart').getContext('2d');
+	window.myHorizontalBar = new Chart(day_chart, {
+		type: 'horizontalBar',
+		data: day_data,
+		options: {
+			responsive: true,
+			legend: {
+				position: 'top',
+			},
+			title: {
+				display: true,
+				text: '일별'
+			}
+		}
+	});
+
+	//누적성과통계
+	var blogid_chart = document.getElementById('blogid_chart').getContext('2d');
+	window.myHorizontalBar = new Chart(blogid_chart, {
+		type: 'horizontalBar',
+		data: blogid_data,
+		options: {
+			responsive: true,
+			legend: {
+				position: 'top',
+			},
+			title: {
+				display: true,
+				text: '누적성과통계'
+			}
+		}
+	});
+	/*가로챠트*/
+
+
+	/*레벨챠트*/
+	var ctx = document.getElementById('level_chart').getContext('2d');
+	window.myPie = new Chart(ctx, level_config);
+	/*레벨챠트*/
+
+};
+</script>
+
+<script>
+	//블로그 최근 5일 방문자
+	$("[id*='blog_chart_']").each(function(){
+
+		var id = $(this).attr('id');
+		var blog_id = $(this).data('ref');
+
+		console.log('id='+id, 'blog_id='+blog_id);
+
+		$.ajax({
+			type     : "post",
+			url      : nfor_path + "/admin/ajax_blog_count_chart.php",
+			data     : "blog_id="+blog_id,
+			async    : false,
+			success  : function(data) {
+				var arr = data.split("|:|");
+				//console.log('arr', arr[0], arr[1], arr[2], arr[3]);
+
+				labels = arr[1].split(',');
+				datas = arr[2].split(',');
+				total_count = arr[3];
+
+				if(arr[0] == 'SUCCESS') {
+
+					/*막대챠트 data */
+					var blog_data = {
+						labels: labels,
+						datasets: [{
+							label: '최근 5일간 방문자 수',
+							backgroundColor: window.chartColors.blue,
+							data: datas
+						} ]
+					};
+					respondCanvas(id, blog_data);
+
+					$('#blog_totalcount_'+blog_id).html('블로그ID : '+ blog_id +', 총합계 : ' + total_count);
+				} else {
+
+					$('#blog_totalcount_'+blog_id).html('블로그ID : '+ blog_id +', 총합계 : 0');
+				}
+
+			},
+			error: function(){
+				console.log("Ajax failed");
+			}
+		});
+	});
+
+	function respondCanvas(id, blog_data) {
+		/*막대챠트*/
+		var blog_chart = document.getElementById(id).getContext('2d');
+		window.myBar = new Chart(blog_chart, {
+			type: 'bar',
+			data: blog_data,
+			options: {
+				tooltips: {
+					mode: 'index',
+					intersect: false
+				},
+				responsive: true,
+				scales: {
+					xAxes: [{
+						stacked: true,
+					}],
+					yAxes: [{
+						stacked: true
+					}]
+				}
+			}
+		});
+		/*막대챠트*/
+	}
+</script>
+
+
+<script type="text/javascript">
+<!--
+$(document).on("click", "#chkall", function(){
+	nfor_chk_all(this, 'chk');
+});
+
+$(document).on("click", "#list_asign", function(){
+	nfor_list_reload('리뷰어 선정','list_asign');
+});
+
+$(document).on("click", "#list_cancel", function(){
+	nfor_list_reload('리뷰어 미선정','list_cancel');
+});
+//-->
+</script>
+<?php
+include_once "tail.php";
+?>

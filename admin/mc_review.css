@@ -1,0 +1,85 @@
+/* ───── 메타크루 리뷰 목록 공통 UI (2026-06-11, 컴팩트 개정) ─────
+   inc_review_search.php에서 link → 모든 리뷰 목록 일괄 적용. 기능·저장 불변.
+   목표: 한 행 세로 축소(회원정보 2줄·여백/textarea 축소)로 한 화면에 더 많은 리스트. */
+
+/* 검색 영역 카드화 */
+form[name="fsearch"]{ background:#fff; border:1px solid #e6eaf0; border-radius:14px; padding:4px 14px; box-shadow:0 1px 3px rgba(15,23,42,.05); margin-bottom:14px; }
+form[name="fsearch"] .cols_tbl, form[name="fsearch"] table{ border:none !important; background:transparent !important; }
+form[name="fsearch"] .cols_tbl th, form[name="fsearch"] .cols_tbl td, form[name="fsearch"] td, form[name="fsearch"] th{ border:none !important; padding:6px 8px !important; background:transparent !important; vertical-align:middle; }
+form[name="fsearch"] th{ color:#475569; font-weight:700; font-size:13px; }
+form[name="fsearch"] input[type=text], form[name="fsearch"] select{ border:1px solid #d8dee7 !important; border-radius:8px !important; padding:6px 10px !important; font-size:13px !important; height:auto !important; color:#1f2937; box-shadow:none !important; }
+form[name="fsearch"] input:focus, form[name="fsearch"] select:focus{ border-color:#0d9488 !important; outline:none !important; box-shadow:0 0 0 3px #effbf9 !important; }
+
+/* ── 입점업체/캠페인 검색형 드롭다운 (mc_select_search.js) ── */
+.mc-ss-wrap{ position:relative; display:inline-block; width:150px; vertical-align:middle; }
+.mc-ss-input{ width:100%; border:1px solid #d8dee7; border-radius:8px; padding:6px 10px; font-size:13px; color:#1f2937; box-sizing:border-box; background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='13' height='13' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2.5'%3E%3Ccircle cx='11' cy='11' r='7'/%3E%3Cpath d='M21 21l-4-4'/%3E%3C/svg%3E") no-repeat right 9px center; padding-right:28px; cursor:text; }
+.mc-ss-input:focus{ border-color:#0d9488; outline:none; box-shadow:0 0 0 3px #effbf9; }
+.mc-ss-input::placeholder{ color:#94a3b8; }
+.mc-ss-list{ position:absolute; z-index:60; top:100%; left:0; min-width:100%; width:max-content; max-width:520px; max-height:280px; overflow-y:auto; background:#fff; border:1px solid #d8dee7; border-radius:8px; box-shadow:0 8px 24px rgba(15,23,42,.14); margin-top:3px; }
+.mc-ss-item{ padding:7px 11px; font-size:13px; color:#334155; cursor:pointer; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:520px; }
+.mc-ss-item:hover{ background:#f0fdfa; color:#0d9488; }
+.mc-ss-none, .mc-ss-more{ padding:8px 11px; font-size:12px; color:#94a3b8; }
+
+/* 목록 테이블 카드화 + 컴팩트 */
+table.row_tbl{ border-collapse:separate !important; border-spacing:0 !important; background:#fff; border:1px solid #e6eaf0 !important; border-radius:14px; overflow:hidden; box-shadow:0 1px 3px rgba(15,23,42,.05); }
+table.row_tbl th{ background:#f8fafc !important; color:#475569 !important; font-weight:700 !important; font-size:12px !important; padding:10px 8px !important; border:none !important; border-bottom:1px solid #e6eaf0 !important; }
+table.row_tbl td{ padding:7px 8px !important; border:none !important; border-bottom:1px solid #eef1f5 !important; font-size:12.5px; vertical-align:middle; color:#334155; line-height:1.4; }
+table.row_tbl tr:last-child td{ border-bottom:none !important; }
+table.row_tbl tbody tr:hover td{ background:#fafcff; }
+table.row_tbl td.textleft, table.row_tbl td[class*="left"]{ text-align:left !important; }
+table.row_tbl td a[href*="campaign.php"]{ color:#0d9488; font-weight:600; text-decoration:none; }
+table.row_tbl td a[href^="http"]{ color:#2563eb; text-decoration:none; word-break:break-all; }
+
+/* 신청 한마디/필수정보 textarea — 컴팩트(짧게) */
+table.row_tbl textarea{ border:1px solid #e2e8f0 !important; border-radius:7px !important; background:#f8fafc !important; font-size:11.5px !important; line-height:1.4 !important; padding:5px 7px !important; color:#374151; resize:none; width:100%; height:34px !important; min-height:34px !important; margin:1px 0; }
+
+/* ── 신청자 한마디/필수정보: 미리보기 + [전체보기] 버튼 → 모달 (mc_msg_modal.js) ── */
+table.row_tbl td.mc-msg-cell{ min-width:120px; }
+.mc-msg-cell textarea{ display:none !important; }   /* 원본 textarea는 폼 전송용으로 숨김 */
+.mc-msg-preview{ font-size:12px; color:#475569; line-height:1.4; max-width:170px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; margin-bottom:5px; }
+.mc-msg-btn{ white-space:nowrap; }
+.mc-modal-overlay{ position:fixed; inset:0; background:rgba(15,23,42,.5); z-index:9999; display:flex; align-items:center; justify-content:center; padding:20px; }
+.mc-modal{ position:relative; background:#fff; border-radius:16px; box-shadow:0 20px 60px rgba(0,0,0,.3); width:min(560px,92vw); max-height:82vh; overflow-y:auto; padding:26px 26px 22px; }
+.mc-modal-x{ position:absolute; top:12px; right:14px; border:none; background:transparent; font-size:26px; line-height:1; color:#94a3b8; cursor:pointer; padding:2px 6px; }
+.mc-modal-x:hover{ color:#475569; }
+.mc-modal-sec{ margin-bottom:18px; }
+.mc-modal-sec:last-child{ margin-bottom:0; }
+.mc-modal-h{ font-size:13px; font-weight:700; color:#0d9488; margin-bottom:7px; }
+.mc-modal-body{ white-space:pre-wrap; word-break:break-word; font-size:14px; line-height:1.65; color:#1f2937; background:#f8fafc; border:1px solid #e6eaf0; border-radius:10px; padding:13px 15px; min-height:44px; }
+
+/* 행 안 작은 버튼 */
+table.row_tbl .btn{ border-radius:7px !important; font-size:11.5px !important; padding:5px 10px !important; }
+table.row_tbl .btn-white{ border:1px solid #cbd5e1 !important; background:#fff !important; color:#334155 !important; }
+table.row_tbl .btn-white:hover{ background:#f1f5f9 !important; }
+
+/* ── 회원정보 칸: 3줄 (이름 / 전화 / 등급·방문수·신고) ── */
+.mc-mi-name{ display:block; font-size:13px; font-weight:600; color:#1f2937; line-height:1.5; white-space:nowrap; }
+.mc-mi-hp{ display:block; font-size:12px; color:#64748b; line-height:1.45; white-space:nowrap; }
+.mc-mi-meta{ display:block; margin-top:3px; line-height:1.5; }
+/* 신청일 — 한 줄 고정(줄바꿈 방지) */
+table.row_tbl td.mc-date{ white-space:nowrap; color:#64748b; font-size:11.5px; text-align:center; }
+.mc-mi-black{ display:inline-block; background:#fee2e2; color:#b91c1c; font-size:10px; font-weight:700; padding:1px 6px; border-radius:999px; vertical-align:middle; }
+/* 블로그 등급/방문수 — 같은 줄 작은 뱃지 */
+table.row_tbl span[id^="blog_totalcount2_"]{ display:inline-block; background:#fff7ed; color:#b45309 !important; font-weight:700; font-size:10px; padding:1px 6px; border-radius:999px; }
+table.row_tbl span[id^="blog_totalcount_"]{ color:#94a3b8 !important; font-weight:600; font-size:11px; }
+/* ── 신청채널 칸: [보러가기] 버튼 + 방문수 한 줄 ── */
+table.row_tbl td.mc-channel-cell{ white-space:nowrap; text-align:left !important; }
+.mc-channel-btn{ display:inline-block !important; vertical-align:middle; border:1px solid #cbd5e1 !important; background:#fff !important; color:#0d9488 !important; font-weight:600 !important; }
+.mc-channel-btn:hover{ background:#f0fdfa !important; border-color:#0d9488 !important; }
+.mc-review-btn{ margin-top:4px; color:#2563eb !important; }
+.mc-review-btn:hover{ background:#eff6ff !important; border-color:#2563eb !important; }
+.mc-ch-meta{ display:block; margin-top:5px; color:#94a3b8; font-size:11px; }
+.mc-ch-meta span[id^="blog_totalcount2_"]{ background:#fff7ed; color:#b45309 !important; font-weight:700; font-size:10px; padding:1px 6px; border-radius:999px; }
+.mc-ch-meta span[id^="blog_totalcount_"]{ color:#475569 !important; font-weight:700; font-size:12px; }
+
+/* 신고 = 눈에 안 띄는 작은 회색 링크 (회원정보 칸 하단) */
+table.row_tbl .mc-report-link, table.row_tbl [id="review_singo"]{ display:inline !important; background:transparent !important; border:none !important; color:#aab2bd !important; font-size:10.5px !important; padding:0 0 0 6px !important; text-decoration:underline; font-weight:400 !important; box-shadow:none !important; }
+table.row_tbl .mc-report-link:hover, table.row_tbl [id="review_singo"]:hover{ color:#dc2626 !important; }
+
+/* 하단 액션 버튼 — 주액션(btn-red)=틸, 보조(btn-black)=흰 */
+.bottom_btn{ margin-top:16px; }
+.bottom_btn .btn-lg{ border-radius:10px !important; padding:11px 20px !important; font-weight:700 !important; font-size:14px !important; box-shadow:0 1px 2px rgba(0,0,0,.06); }
+.bottom_btn .btn-red{ background:#0d9488 !important; border-color:#0d9488 !important; color:#fff !important; }
+.bottom_btn .btn-red:hover{ background:#0b7d72 !important; }
+.bottom_btn .btn-black{ background:#fff !important; border:1px solid #cbd5e1 !important; color:#334155 !important; }
+.bottom_btn .btn-black:hover{ background:#f1f5f9 !important; }

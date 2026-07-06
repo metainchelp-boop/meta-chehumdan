@@ -1,0 +1,116 @@
+/* ============================================================================
+   mc_front.css — 고객(공개) 프론트 전역 현대화 레이어 (2026-06-15)
+   html_head.php 에서 style.css '다음'에 전역 로드 → 모든 프론트 페이지 적용.
+   ★콘텐츠 전용 클래스(.container_cus / .cusinfor / .cus_leftmenu / .page_title /
+     .page_center / .review_box_list)에만 스코프 → #header·#footer 안전.
+   홈은 mc_home_theme.css(틸 톤)가 뒤에 로드되어 그대로 유지(동일 토큰).
+   한 줄(로드) 빼면 즉시 원복.
+   ============================================================================ */
+:root{
+  --mcf-accent:#0d9488; --mcf-accent2:#14b8a6; --mcf-soft:#effbf9;
+  --mcf-ink:#0f172a; --mcf-ink2:#475569; --mcf-muted:#94a3b8;
+  --mcf-line:#e9edf2; --mcf-bg:#f7f9fb; --mcf-card:#fff;
+  --mcf-shadow:0 1px 2px rgba(15,23,42,.04), 0 4px 14px rgba(15,23,42,.05);
+}
+
+/* ── 2단 레이아웃 여백 ── */
+.container_cus{ gap:24px; }
+
+/* ── 좌측 회원 메뉴: 이미지/밋밋한 목록 → 흰 카드 ── */
+.cus_leftmenu{
+  box-sizing:border-box !important;   /* 패딩·보더를 248px 폭 안에 포함 → 사이드바가 30px 넓어져 관심캠페인 등 콘텐츠가 아래로 밀리는 현상 방지 2026-06-23 */
+  background:var(--mcf-card) !important; border:1px solid var(--mcf-line) !important;
+  border-radius:16px !important; box-shadow:var(--mcf-shadow); padding:18px 14px !important;
+}
+.cus_leftmenu .main_txt{ font-size:17px !important; font-weight:800 !important; color:var(--mcf-ink) !important; letter-spacing:-.01em; }
+.cus_leftmenu .main_txt.point_color4{ color:var(--mcf-accent) !important; }
+.cus_leftmenu .sub_txt{ color:var(--mcf-muted) !important; font-size:12.5px !important; }
+.cus_leftmenu ul{ margin-top:12px; }
+.cus_leftmenu ul li{ list-style:none; border:none !important; }
+.cus_leftmenu ul li a{
+  display:block !important; padding:11px 14px !important; margin:2px 0 !important; border-radius:10px !important;
+  color:var(--mcf-ink2) !important; font-weight:600 !important; font-size:14px !important;
+  text-decoration:none !important; transition:.13s; border:none !important;
+}
+.cus_leftmenu ul li a:hover{ background:var(--mcf-soft) !important; color:var(--mcf-accent) !important; }
+.cus_leftmenu ul li.on a, .cus_leftmenu ul li.active a{
+  background:var(--mcf-accent) !important; color:#fff !important; font-weight:800 !important;
+}
+
+/* ── 본문 헤더 ── */
+.cusinfor .page_title, .cusinfor > .page_title{
+  font-size:21px !important; font-weight:800 !important; color:var(--mcf-ink) !important;
+  letter-spacing:-.02em; padding-bottom:16px !important; margin-bottom:20px !important;
+  border-bottom:1px solid var(--mcf-line) !important;
+}
+
+/* ── 본문 표(공지/FAQ/내역 등) → 둥근 카드형 ── */
+.cusinfor table{
+  width:100% !important; border-collapse:separate !important; border-spacing:0 !important;
+  background:var(--mcf-card); border:1px solid var(--mcf-line) !important; border-radius:14px !important;
+  overflow:hidden; box-shadow:var(--mcf-shadow);
+}
+.cusinfor table th{
+  background:#f7f9fb !important; color:var(--mcf-ink2) !important; font-weight:800 !important;
+  font-size:13px !important; padding:14px 12px !important; border-bottom:1px solid var(--mcf-line) !important; border-right:none !important;
+}
+.cusinfor table td{
+  padding:14px 12px !important; border-bottom:1px solid #f0f3f7 !important; border-right:none !important;
+  color:var(--mcf-ink2) !important; font-size:13.5px !important; vertical-align:middle;
+}
+.cusinfor table tr:hover td{ background:#fafcfd; }
+.cusinfor table a{ color:var(--mcf-ink) !important; }
+.cusinfor table a:hover{ color:var(--mcf-accent) !important; }
+
+/* ── 페이징(Bootstrap .pagination) ── */
+.page_center .pagination > li > a, .page_center .pagination > li > span{
+  border-radius:10px !important; margin:0 3px !important; border:1px solid var(--mcf-line) !important;
+  color:var(--mcf-ink2) !important; font-weight:700 !important; min-width:38px; text-align:center;
+}
+.page_center .pagination > .active > a, .page_center .pagination > .active > span,
+.page_center .pagination > li > a:hover{
+  background:var(--mcf-accent) !important; border-color:var(--mcf-accent) !important; color:#fff !important;
+}
+
+/* ── 본문 버튼 ── */
+.cusinfor .btn, .cusinfor .sub_btn, .cusinfor button, .container_cus .btn{
+  border-radius:10px !important; font-weight:700 !important; transition:.13s;
+}
+.cusinfor .btn:hover, .container_cus .btn:hover{ filter:brightness(.97); }
+
+/* ── 본문 입력/셀렉트 ── */
+.cusinfor input[type=text], .cusinfor input[type=password], .cusinfor input[type=number],
+.cusinfor input[type=tel], .cusinfor input[type=email], .cusinfor select, .cusinfor textarea,
+.container_cus input[type=text], .container_cus select{
+  border:1px solid #d8dee7 !important; border-radius:10px !important; padding:9px 12px !important; box-shadow:none !important;
+}
+.cusinfor input:focus, .cusinfor select:focus, .cusinfor textarea:focus,
+.container_cus input:focus, .container_cus select:focus{
+  border-color:var(--mcf-accent) !important; box-shadow:0 0 0 3px var(--mcf-soft) !important; outline:none !important;
+}
+
+/* ── 포인트 내역: 요약/탭/목록 ── */
+.cusinfor .point{
+  background:linear-gradient(135deg,#0d9488,#14b8a6) !important; color:#fff !important;
+  border-radius:16px !important; box-shadow:0 8px 22px rgba(13,148,136,.22); border:none !important;
+}
+.cusinfor .point *{ color:#fff !important; }
+.point_teb a, .point_teb li a{ border-radius:10px 10px 0 0 !important; font-weight:700 !important; }
+.point_teb .on a, .point_teb li.on a, .point_teb a.on{
+  background:var(--mcf-accent) !important; color:#fff !important;
+}
+.point_list_wrap{ border:1px solid var(--mcf-line); border-radius:14px; overflow:hidden; box-shadow:var(--mcf-shadow); }
+
+/* ── 실시간 리뷰 카드(.review_box_list) — 홈과 동일 톤 ── */
+.review_box_list .box{
+  background:var(--mcf-card) !important; border:1px solid var(--mcf-line) !important;
+  border-radius:14px !important; box-shadow:var(--mcf-shadow); overflow:hidden;
+  transition:transform .15s, box-shadow .15s;
+}
+.review_box_list .box:hover{ transform:translateY(-3px); box-shadow:0 12px 24px rgba(13,148,136,.15); }
+.review_box_list .review_cop{ color:var(--mcf-ink) !important; font-weight:700 !important; }
+.review_box_list .review_name{ color:var(--mcf-muted) !important; }
+.review_box_list .review_bottom a{ color:var(--mcf-accent) !important; font-weight:700; }
+
+/* ── 링크 hover 통일 ── */
+.cusinfor a:hover{ color:var(--mcf-accent); }

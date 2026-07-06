@@ -1,0 +1,12 @@
+[13-Mar-2019 21:23:32 Asia/Seoul] PHP Fatal error:  Uncaught Error: Call to undefined function okname() in /home/hosting_users/s009/www/okname/hp1_edit.php:132
+Stack trace:
+#0 {main}
+  thrown in /home/hosting_users/s009/www/okname/hp1_edit.php on line 132
+[13-Mar-2019 21:23:38 Asia/Seoul] PHP Fatal error:  Uncaught Error: Call to undefined function okname() in /home/hosting_users/s009/www/okname/hp1.php:132
+Stack trace:
+#0 {main}
+  thrown in /home/hosting_users/s009/www/okname/hp1.php on line 132
+[13-Mar-2019 21:23:44 Asia/Seoul] PHP Fatal error:  Uncaught Error: Call to undefined function okname() in /home/hosting_users/s009/www/okname/ipin1.php:38
+Stack trace:
+#0 {main}
+  thrown in /home/hosting_users/s009/www/okname/ipin1.php on line 38

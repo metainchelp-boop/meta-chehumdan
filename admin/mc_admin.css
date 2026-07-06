@@ -1,0 +1,104 @@
+/* ============================================================================
+   mc_admin.css — 관리자 전역 현대화 레이어 (2026-06-15)
+   head.php에서 nfor.css '다음'에 로드. 관리자는 옛 table 레이아웃 + nfor 공통
+   클래스(.row_tbl/.cols_tbl/.btn-*/.pagination)를 쓰므로 전역 클래스로 타깃.
+   ★기능 위젯(datepicker/cheditor/jstree/bootstrap-dialog/minicolors) 내부는 미변경.
+     한 줄(로드) 빼면 즉시 원복.
+   ============================================================================ */
+:root{
+  --mc-g:#03c75a; --mc-gd:#02b150; --mc-gbg:#eafaf0; --mc-gline:#c3eed5;
+  --mc-ink:#191f28; --mc-sub:#6b7684; --mc-mut:#8b95a1; --mc-line:#eaedf1; --mc-bg:#f4f6f8;
+}
+
+/* ── 콘텐츠 영역 파란 7px 테두리(인라인 style) 중화 ── */
+table[style*="0081E6"]{ border:1px solid var(--mc-line) !important; border-radius:16px !important; }
+
+/* ── 데이터목록 표(.row_tbl) / 검색·폼 표(.cols_tbl) — 둥근 카드형 ── */
+.row_tbl, .cols_tbl{
+  border:1px solid var(--mc-line) !important; border-radius:14px !important; overflow:hidden;
+  background:#fff; box-shadow:0 1px 2px rgba(16,24,40,.04);
+  border-collapse:separate !important; border-spacing:0; margin-bottom:14px;
+}
+.row_tbl > tbody > tr > th, .row_tbl > tbody > tr > td,
+.row_tbl > tfoot > tr > th, .row_tbl > tfoot > tr > td,
+.cols_tbl > tbody > tr > th, .cols_tbl > tbody > tr > td{
+  border-color:#f1f3f5 !important; border-right:none !important; padding:12px 11px !important; vertical-align:middle;
+}
+.row_tbl th, .cols_tbl > tbody > tr > th{
+  background:#fafbfc !important; color:var(--mc-sub) !important; font-weight:800 !important;
+  border-bottom:1px solid var(--mc-line) !important; font-size:12.5px !important; letter-spacing:0 !important;
+}
+.row_tbl{ border-top:1px solid var(--mc-line) !important; }
+.row_tbl > tbody > tr:hover > td{ background:#f8fafb; }
+
+/* ── 버튼 — 둥글게 + 토스/네이버 톤 ── */
+.btn, .btn-lg, .btn-sm, .btn-sml, .btn-th{ border-radius:9px !important; font-weight:700 !important; transition:.12s; }
+.btn-lg{ padding:11px 18px !important; }
+.btn-black{ background:#191f28 !important; background-color:#191f28 !important; border-color:#191f28 !important; color:#fff !important; }
+.btn-black:hover{ background:#000 !important; background-color:#000 !important; }
+.btn-red{ background:#f03e3e !important; border-color:#f03e3e !important; color:#fff !important; }
+.btn-red:hover{ background:#e03131 !important; }
+.btn-gray{ background:#fff !important; border:1px solid #d8dee7 !important; color:var(--mc-sub) !important; }
+.btn-gray:hover{ border-color:#b9c1cb !important; background:#f8fafb !important; }
+.btn-white{ background:#fff !important; border:1px solid #d8dee7 !important; color:var(--mc-sub) !important; }
+.btn-white:hover, .btn-white:focus{ border-color:#b9c1cb !important; background:#f8fafb !important; }
+/* 검색하기/등록하기 등 주요 제출(.table_btn·.bottom_btn 안 검정버튼) = 초록 강조 */
+.table_btn .btn-black, .bottom_btn .btn-black{ background:var(--mc-g) !important; border-color:var(--mc-g) !important; }
+.table_btn .btn-black:hover, .bottom_btn .btn-black:hover{ background:var(--mc-gd) !important; }
+/* 엑셀다운 모달(BootstrapDialog) 내 검정버튼 가시성 — 모달 안에서 CSS변수 미해결로 배경 투명+흰글씨가 돼 안 보이던 문제(2026-06-18, 박학순 신고). 리터럴+고특이성으로 강제. */
+.bootstrap-dialog .btn-black, #layer_excel .btn-black, #layer_excel input[name="excel_download_btn"]{ background:#191f28 !important; background-color:#191f28 !important; border-color:#191f28 !important; color:#fff !important; }
+.bootstrap-dialog .btn-black:hover, #layer_excel .btn-black:hover, #layer_excel input[name="excel_download_btn"]:hover{ background:#000 !important; background-color:#000 !important; }
+
+/* ── 입력/셀렉트 (검색·폼 표, 인라인폼 한정 — 위젯 보호) ── */
+.cols_tbl input[type=text], .cols_tbl input[type=password], .cols_tbl input[type=number],
+.cols_tbl select, .cols_tbl textarea,
+.row_tbl input[type=text], .row_tbl input[type=password], .row_tbl input[type=number], .row_tbl select, .row_tbl textarea,
+.form-inline input[type=text], .form-inline input[type=number], .form-inline input[type=password], .form-inline select{
+  border:1px solid #d8dee7 !important; border-radius:9px !important; padding:7px 11px !important; height:auto !important; box-shadow:none !important;
+}
+.cols_tbl input:focus, .cols_tbl select:focus, .cols_tbl textarea:focus,
+.row_tbl input:focus, .row_tbl select:focus, .row_tbl textarea:focus,
+.form-inline input:focus, .form-inline select:focus{
+  border-color:var(--mc-g) !important; box-shadow:0 0 0 3px var(--mc-gbg) !important; outline:none !important;
+}
+
+/* ── 페이징 ── */
+.pagination > li > a, .pagination > li > span{
+  border-radius:9px !important; margin:0 3px !important; border:1px solid var(--mc-line) !important;
+  color:var(--mc-sub) !important; font-weight:700;
+}
+.pagination > .active > a, .pagination > .active > span,
+.pagination > li > a:hover{ background:var(--mc-ink) !important; border-color:var(--mc-ink) !important; color:#fff !important; }
+
+/* ── 검색결과 카운트 강조 ── */
+.txt_red{ color:var(--mc-g) !important; font-weight:800; }
+
+/* ── 상단 탭메뉴: 활성 탭을 보드와 같은 초록으로 (인라인 <style>보다 높은 specificity) ── */
+body .lnb_zone .menu li a{ border-radius:10px 10px 0 0 !important; }
+body .lnb_zone .menu .on,
+body .lnb_zone .menu li a.on{ background-color:var(--mc-g) !important; border-color:var(--mc-g) !important; color:#fff !important; }
+body .lnb_zone .side_menu .btn01{ background-color:var(--mc-g) !important; border-color:var(--mc-g) !important; border-radius:7px !important; }
+
+/* ── 좌측 사이드바(서브메뉴) 현대화 — 이미지배경 카드 → 깔끔한 흰 카드 (템플릿 무수정·속성선택자) ── */
+table[background*="leftmenu_bg_middle"]{
+  background-image:none !important; background-color:#fff !important;
+  border:1px solid var(--mc-line) !important; border-radius:12px !important;
+  box-shadow:0 1px 2px rgba(16,24,40,.04); overflow:hidden;
+}
+td[background*="leftmenu_bg_top"]{
+  background-image:none !important; background-color:#fafbfc !important;
+  color:#475569 !important; font-weight:800 !important; font-size:12.5px !important;
+  height:auto !important; padding:11px 14px !important; border-bottom:1px solid var(--mc-line) !important;
+  font-family:'Pretendard','Apple SD Gothic Neo',sans-serif !important;
+}
+td[background*="leftmenu_bg_middle"]{ background-image:none !important; background-color:#fff !important; padding:6px 8px !important; }
+td[background*="leftmenu_bg_bottom"]{ background-image:none !important; height:4px !important; }
+td[background*="leftmenu_bg_middle"] a{
+  display:block !important; padding:7px 10px !important; margin:1px 0 !important; border-radius:8px !important;
+  color:#4b5563 !important; text-decoration:none !important; font-size:13px !important;
+  font-family:'Pretendard','Apple SD Gothic Neo',sans-serif !important;
+}
+td[background*="leftmenu_bg_middle"] a:hover{ background-color:#f1f3f5 !important; }
+html body td[background*="leftmenu_bg_middle"] table a[style*="bold"]{ background-color:#eafaf0 !important; color:#02b150 !important; font-weight:800 !important; border-radius:8px !important; }
+/* 메뉴 링크 안 inner table은 폭 채우기 */
+td[background*="leftmenu_bg_middle"] > table{ width:100% !important; }

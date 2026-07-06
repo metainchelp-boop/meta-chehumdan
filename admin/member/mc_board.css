@@ -1,0 +1,133 @@
+/* 캠페인 진행 보드 (admin/review_board.php) — 2026-06-13 신설. 브랜드커넥트풍.
+   기존 mc_review.css와 함께 로드. #mc-board 스코프라 다른 화면 무영향. */
+#mc-board{ --g:#03c75a; --gd:#02b150; --gbg:#eafaf0; --ink:#191f28; --sub:#6b7684; --mut:#8b95a1; --line:#eaedf1; --blue:#3182f6; --bluebg:#eef3ff; --amber:#b5740a; --amberbg:#fff8ec; --red:#f03e3e; }
+#mc-board{ font-family:'Pretendard','Apple SD Gothic Neo',sans-serif; color:var(--ink); max-width:1180px; }
+
+/* 캠페인 선택 바 */
+#mc-board .bsel{ background:#fff; border:1px solid var(--line); border-radius:14px; padding:14px 16px; display:flex; align-items:center; gap:10px; margin-bottom:16px; flex-wrap:wrap; }
+#mc-board .bsel label{ font-weight:800; font-size:13.5px; color:#475569; }
+#mc-board .bsel select{ border:1px solid #d8dee7; border-radius:9px; padding:8px 11px; font-size:13.5px; min-width:280px; }
+
+/* 캠페인 헤더 */
+#mc-board .bhead{ background:#fff; border:1px solid var(--line); border-radius:16px; padding:18px 20px; display:flex; align-items:center; gap:15px; margin-bottom:16px; }
+#mc-board .bhead .th{ width:56px; height:56px; border-radius:13px; background:linear-gradient(135deg,#d3f3e0,#a8e6c4); display:flex; align-items:center; justify-content:center; font-size:24px; flex-shrink:0; }
+#mc-board .bhead .nm{ font-size:18px; font-weight:800; letter-spacing:-.3px; }
+#mc-board .bhead .mt{ margin-top:6px; display:flex; gap:7px; flex-wrap:wrap; }
+#mc-board .btag{ font-size:11.5px; font-weight:700; padding:4px 10px; border-radius:7px; background:#f2f4f6; color:var(--sub); }
+#mc-board .btag.live{ background:var(--gbg); color:var(--gd); }
+#mc-board .bhead .gobtn{ margin-left:auto; }
+
+/* 퍼널 */
+#mc-board .funnel{ display:flex; gap:9px; margin-bottom:20px; flex-wrap:wrap; }
+#mc-board .fstep{ flex:1; min-width:120px; background:#fff; border:1px solid var(--line); border-radius:13px; padding:13px 15px; position:relative; cursor:pointer; text-decoration:none; color:inherit; display:block; }
+#mc-board .fstep:hover{ border-color:#cfd6dd; }
+#mc-board .fstep.on{ border-color:var(--g); box-shadow:0 0 0 3px var(--gbg); }
+#mc-board .fstep .k{ font-size:12px; color:var(--sub); font-weight:700; }
+#mc-board .fstep .v{ font-size:24px; font-weight:800; letter-spacing:-.5px; margin-top:3px; }
+#mc-board .fstep .v small{ font-size:13px; color:var(--mut); font-weight:700; }
+#mc-board .fstep .ar{ position:absolute; right:-11px; top:50%; transform:translateY(-50%); color:#cbd3da; font-size:15px; z-index:2; }
+#mc-board .fstep:last-child .ar{ display:none; }
+#mc-board .sidestat{ display:flex; gap:9px; margin:-8px 0 20px; flex-wrap:wrap; }
+#mc-board .sidestat a{ font-size:12px; font-weight:700; padding:6px 12px; border-radius:9px; background:#fff; border:1px solid var(--line); color:var(--sub); text-decoration:none; }
+#mc-board .sidestat a.on{ background:var(--ink); color:#fff; border-color:var(--ink); }
+#mc-board .sidestat b{ color:var(--red); }
+
+/* 신청자 카드 리스트 */
+#mc-board .blist-h{ display:flex; align-items:center; justify-content:space-between; margin:4px 2px 12px; }
+#mc-board .blist-h h3{ font-size:15px; font-weight:800; }
+#mc-board .blist-h .manage{ font-size:13px; font-weight:800; color:var(--gd); background:var(--gbg); border:1px solid #c3eed5; padding:8px 14px; border-radius:10px; text-decoration:none; }
+#mc-board .brow{ background:#fff; border:1px solid var(--line); border-radius:13px; padding:13px 16px; display:flex; align-items:center; gap:13px; margin-bottom:9px; }
+#mc-board .brow:hover{ border-color:#d7dbe0; }
+#mc-board .brow .pf{ width:40px; height:40px; border-radius:50%; background:#eef1f4; display:flex; align-items:center; justify-content:center; font-weight:800; color:var(--sub); flex-shrink:0; }
+#mc-board .brow .who{ flex:1; min-width:0; }
+#mc-board .brow .who .nm{ font-weight:800; font-size:14px; }
+#mc-board .brow .who .hp{ font-size:12px; color:var(--sub); margin-top:1px; }
+#mc-board .brow .ch{ display:flex; flex-direction:column; gap:4px; min-width:150px; }
+#mc-board .brow .ch a.mc-channel-btn{ font-size:12px; padding:6px 11px; }
+#mc-board .brow .msg{ flex:1; min-width:0; font-size:12.5px; color:var(--sub); line-height:1.5; max-height:42px; overflow:hidden; }
+#mc-board .brow .dt{ font-size:12px; color:var(--mut); min-width:84px; text-align:right; white-space:nowrap; }
+#mc-board .bempty{ background:#fff; border:1px dashed var(--line); border-radius:13px; padding:44px 0; text-align:center; color:var(--mut); font-size:13.5px; }
+#mc-board .ch .mc-ch-meta{ font-size:11px; }
+
+/* 카드별 액션 버튼 (보드 내 선정·검수) */
+#mc-board .brow .bact{ display:flex; gap:6px; flex-shrink:0; flex-wrap:wrap; justify-content:flex-end; min-width:160px; }
+#mc-board .mc-act{ border:1px solid var(--line); background:#fff; color:var(--sub); border-radius:9px; padding:7px 12px; font-size:12.5px; font-weight:700; cursor:pointer; white-space:nowrap; text-decoration:none; }
+#mc-board .mc-act:hover{ background:#f8fafc; }
+#mc-board .mc-act-go{ border-color:var(--g); color:var(--gd); background:var(--gbg); }
+#mc-board .mc-act-go:hover{ background:#d8f5e4; }
+
+/* ───────────── 4탭 허브 (2026-06-13) ───────────── */
+#mc-board .tabs{ display:flex; gap:4px; background:#fff; border:1px solid var(--line); border-radius:14px; padding:6px; margin-bottom:18px; }
+#mc-board .tab{ flex:1; text-align:center; padding:11px 8px; border-radius:10px; font-size:14px; font-weight:800; color:var(--sub); cursor:pointer; text-decoration:none; display:block; }
+#mc-board .tab small{ display:block; font-size:11px; font-weight:700; color:var(--mut); margin-top:2px; }
+#mc-board .tab.on{ background:var(--ink); color:#fff; }
+#mc-board .tab.on small{ color:#cdd5dd; }
+#mc-board .pane{ display:none; }
+#mc-board .pane.on{ display:block; }
+
+/* 정보 카드 */
+#mc-board .icards{ }
+#mc-board .ic{ background:#fff; border:1px solid var(--line); border-radius:14px; padding:17px 20px; margin-bottom:13px; }
+#mc-board .ic h4{ margin:0 0 13px; font-size:14.5px; font-weight:800; display:flex; align-items:center; gap:7px; }
+#mc-board .kv{ display:flex; flex-wrap:wrap; }
+#mc-board .kv .r{ width:50%; display:flex; gap:10px; padding:7px 0; font-size:13.5px; }
+#mc-board .kv .r .lab{ width:108px; color:var(--mut); font-weight:700; flex-shrink:0; }
+#mc-board .kv .r .val{ color:var(--ink); font-weight:600; word-break:break-all; }
+#mc-board .guidebox{ font-size:13px; color:#3f4651; line-height:1.75; white-space:pre-line; }
+#mc-board .chanbadges span{ display:inline-block; font-size:11.5px; font-weight:700; padding:4px 10px; border-radius:7px; margin:0 5px 5px 0; }
+#mc-board .chanbadges .blog{ background:#e7f6ee; color:#16a34a; }
+#mc-board .chanbadges .insta{ background:#fde7f3; color:#c026a3; }
+#mc-board .chanbadges .you{ background:#fee2e2; color:#dc2626; }
+#mc-board .chanbadges .shop{ background:#fef9c3; color:#a16207; }
+#mc-board .chanbadges .etc{ background:#eef2f6; color:#475569; }
+
+@media (max-width:720px){ #mc-board .kv .r{ width:100%; } #mc-board .tab small{ display:none; } }
+
+/* 신청자 선정 — 인플루언서 카드 */
+#mc-board .subtabs{ display:flex; gap:8px; margin-bottom:13px; flex-wrap:wrap; }
+#mc-board .subtab{ padding:9px 15px; border-radius:10px; background:#fff; border:1px solid var(--line); font-size:13px; font-weight:800; color:var(--sub); cursor:pointer; text-decoration:none; }
+#mc-board .subtab.on{ background:var(--g); color:#fff; border-color:var(--g); }
+#mc-board .subtab .b{ margin-left:5px; }
+#mc-board .subtab.on .b{ color:#fff; }
+#mc-board .icard{ background:#fff; border:1px solid var(--line); border-radius:14px; padding:15px 18px; margin-bottom:10px; display:flex; gap:15px; align-items:flex-start; }
+#mc-board .icard:hover{ border-color:#d7dbe0; }
+#mc-board .icard .pf{ width:48px; height:48px; border-radius:50%; background:linear-gradient(135deg,#e6f8ee,#cdeedb); display:flex; align-items:center; justify-content:center; font-weight:800; color:var(--gd); font-size:17px; flex-shrink:0; }
+#mc-board .icard .main{ flex:1; min-width:0; }
+#mc-board .icard .nm{ font-size:15px; font-weight:800; }
+#mc-board .icard .meta{ font-size:12px; color:var(--sub); margin-top:3px; }
+#mc-board .icard .chans{ display:flex; gap:8px; margin-top:11px; flex-wrap:wrap; align-items:center; }
+#mc-board .icard .stats{ display:flex; gap:20px; margin-top:12px; padding-top:12px; border-top:1px dashed var(--line); flex-wrap:wrap; }
+#mc-board .icard .stat .sk{ font-size:11px; color:var(--mut); font-weight:700; }
+#mc-board .icard .stat .sv{ font-size:14.5px; font-weight:800; margin-top:2px; }
+#mc-board .icard .applymsg{ margin-top:11px; font-size:12.5px; color:#5a626c; line-height:1.55; background:#f8fafb; border-radius:9px; padding:9px 12px; }
+#mc-board .icard .right{ width:148px; flex-shrink:0; display:flex; flex-direction:column; gap:7px; }
+#mc-board .icard .dt{ font-size:11.5px; color:var(--mut); text-align:right; }
+
+/* 진행 관리 테이블 */
+#mc-board .mtable{ width:100%; border-collapse:collapse; background:#fff; border:1px solid var(--line); border-radius:14px; overflow:hidden; font-size:13px; }
+#mc-board .mtable th{ background:#fafbfc; color:var(--sub); font-weight:800; font-size:12px; padding:13px 9px; border-bottom:1px solid var(--line); text-align:center; white-space:nowrap; }
+#mc-board .mtable td{ padding:13px 9px; border-bottom:1px solid var(--line); text-align:center; vertical-align:middle; }
+#mc-board .mtable tr:last-child td{ border-bottom:none; }
+#mc-board .mtable .who-l{ text-align:left; }
+#mc-board .mtable .who-l .nm{ font-weight:800; }
+#mc-board .mtable .who-l .hp{ font-size:11.5px; color:var(--mut); margin-top:1px; }
+#mc-board .pill{ display:inline-block; font-size:11.5px; font-weight:800; padding:4px 11px; border-radius:8px; white-space:nowrap; }
+#mc-board .pill.done{ background:var(--gbg); color:var(--gd); }
+#mc-board .pill.ing{ background:var(--bluebg); color:var(--blue); }
+#mc-board .pill.wait{ background:var(--amberbg); color:var(--amber); }
+#mc-board .pill.gray{ background:#f1f3f5; color:var(--sub); }
+#mc-board .tbtn{ font-size:12px; font-weight:700; border:1px solid #d8dee7; background:#fff; border-radius:8px; padding:7px 11px; cursor:pointer; color:var(--sub); white-space:nowrap; text-decoration:none; display:inline-block; }
+#mc-board .tbtn.go{ border-color:var(--g); color:var(--gd); background:var(--gbg); }
+#mc-board .prog{ font-size:12.5px; font-weight:800; }
+#mc-board .prog small{ display:block; font-size:10.5px; color:var(--mut); font-weight:700; margin-top:1px; }
+
+/* 정산 현황 카드 */
+#mc-board .scards{ display:flex; gap:11px; margin-bottom:16px; flex-wrap:wrap; }
+#mc-board .scard{ flex:1; min-width:150px; background:#fff8ec; border:1px solid #ffe2a8; border-radius:13px; padding:15px 17px; }
+#mc-board .scard.g{ background:var(--gbg); border-color:#c3eed5; }
+#mc-board .scard .sk{ font-size:12.5px; color:var(--sub); font-weight:700; }
+#mc-board .scard .sv{ font-size:21px; font-weight:800; margin-top:7px; }
+#mc-board .scard .sv small{ font-size:13px; font-weight:700; color:var(--mut); }
+#mc-board .erp-link{ display:flex; align-items:center; gap:13px; background:#fff; border:1px solid var(--line); border-radius:13px; padding:16px 18px; }
+#mc-board .erp-link .txt{ flex:1; font-size:13px; color:var(--sub); line-height:1.6; }
+#mc-board .erp-link .txt b{ color:var(--ink); }

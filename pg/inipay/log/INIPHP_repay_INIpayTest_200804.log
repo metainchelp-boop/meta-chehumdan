@@ -1,0 +1,508 @@
+INFO	[2020-08-04 16:31:19:996] <18772> START INIPHP repay (V5047-170421)(OS:Linux3.10.0-327.10.1.el7.x86_64,PHP:7.0.7)
+DEBUG	[2020-08-04 16:31:19:996] <18772> inipayhome:/home/hosting_users/s019/www/pg/inipay
+DEBUG	[2020-08-04 16:31:19:996] <18772> type:repay
+DEBUG	[2020-08-04 16:31:19:996] <18772> no_acct:
+DEBUG	[2020-08-04 16:31:19:996] <18772> nm_acct:
+DEBUG	[2020-08-04 16:31:19:996] <18772> pgid:INIphpRPAY
+DEBUG	[2020-08-04 16:31:19:996] <18772> subpgip:203.238.3.10
+DEBUG	[2020-08-04 16:31:19:996] <18772> debug:true
+DEBUG	[2020-08-04 16:31:19:996] <18772> mid:INIpayTest
+DEBUG	[2020-08-04 16:31:19:996] <18772> admin:1111
+DEBUG	[2020-08-04 16:31:19:996] <18772> oldtid:StdpayCARDINIpayTest20200804160901475591
+DEBUG	[2020-08-04 16:31:19:996] <18772> currency:
+DEBUG	[2020-08-04 16:31:19:996] <18772> price:100
+DEBUG	[2020-08-04 16:31:19:996] <18772> confirm_price:800
+DEBUG	[2020-08-04 16:31:19:996] <18772> buyeremail:nfor@nfor.net
+INFO	[2020-08-04 16:31:19:996] <18772> Check Field OK
+INFO	[2020-08-04 16:31:19:996] <18772> Make TID OK INIphpRPAYINIpayTest20200804163119966557
+INFO	[2020-08-04 16:31:19:996] <18772> PI PUB KEY LOAD OK []
+INFO	[2020-08-04 16:31:19:996] <18772> PG PUB KEY LOAD OK [30]
+INFO	[2020-08-04 16:31:19:996] <18772> MERCHANT PRIV KEY LOAD OK
+INFO	[2020-08-04 16:31:19:996] <18772> MERCHANT PUB KEY LOAD OK [0]
+DEBUG	[2020-08-04 16:31:19:997] <18772> MAKE ENCRYPT OK[<?xml version="1.0" encoding="UTF-8"?>
+<PartCancelInfo>
+	  <PRTC_TID>StdpayCARDINIpayTest20200804160901475591</PRTC_TID>
+	  <PRTC_Price>100</PRTC_Price>
+	  <PRTC_Remains>800</PRTC_Remains>
+	  <PRTC_Quota/>
+	  <PRTC_Interest/>
+	  <PRTC_NoAcctFNBC/>
+	  <PRTC_NmAcctFNBC/></PartCancelInfo>]
+INFO	[2020-08-04 16:31:19:997] <18772> MAKE BODY OK
+INFO	[2020-08-04 16:31:19:997] <18772> SIGN OK
+INFO	[2020-08-04 16:31:19:997] <18772> MAKE HEAD OK
+DEBUG	[2020-08-04 16:31:19:997] <18772> MSG_TO_PG:[0108200175D SHA1                   0                                      300620INIpayTest                 100INIphpRPAYINIpayTest20200804163119966557<?xml version="1.0" encoding="UTF-8"?>
+<INIpay>
+	  <PartCancelInfo>
+	    <SessionKey>DS8B4ZUcTZ6YC+9V/PlwzX45BSFm6XTr9sFTeJ9mIBPg5rGTcg5/ODaLEK76vHyM
+aaloLbSinGqscWvfa9HWLQWvhf1GohYcmMQkxxXVX5hiTgvkHIrByEfiAhxy29Yx
+7Z2BiJWOY+BnTKZNl7NxQLvw4G2+rHJTCT3SiKhd7pDQlMWVYL0CZQ==
+</SessionKey>
+	    <Encrypted>i1rohkenZfz/orJL7p5sAi1Xs+TKuFFmhxH4J1+jTrWbGnS6bNeNyQGAFDc0xqSL
+f8iza0ZoWtU/oOQ5NrQDx3zi2g2gyCzAh+/79o9Fb1e8Bh5dX0/IWaHNHjnpR8F4
+jU4c4Dt05FM3ruBBAjBXirRoFdI1alhJTEbWnDN0x14kzQn+AAL4Isw1eYPx3yZZ
+0NN/TWMuU1mvyU+v9VEZAef2+UbZcueN6Dx4SW2ifTQH5CSMHa4MXMZeopml5XAS
+YJ46da9ZHutN4ULZfCkykvDPnS09+g51ZGG+cfaUqyMk/ufgcb3fpO2sh4t6OpEi
+XXrV+4HgYn8uh7tngouIptRsDIDxtk/hvwODSUmCCQM44wCq5QD5xWQM6EjGbZRf
+</Encrypted></PartCancelInfo>
+	  <GoodsInfo>
+	    <Tax/>
+	    <TaxFree/>
+	    <Currency/></GoodsInfo>
+	  <ReservedInfo>
+	    <MReserved1/>
+	    <MReserved2/>
+	    <MReserved3/></ReservedInfo>
+	  <ManageInfo>
+	    <Language/>
+	    <URL/>
+	    <TXVersion>5047B170421repayLinux     PHPchkfake   3.10.0-327.10.1.el7.x86_64PHP:</TXVersion>
+	    <TXUserID/>
+	    <TXRegNum/></ManageInfo></INIpay>rRNrnBQXbWX9fPNbkczoe8x+cv0rB5Sai5dTo9fcGKaFVS6+JkNCkdw0y0ruEBAo
+zgr8TsXIFtZC+4sWnmxvuluHNtLCWJ1YPZuIxqxajrvCR3xuc+dM38dLn7R6YRRL
+hvvK5NgmajQt40fwQO7PjmOBWH15/0zUF70Qtf5MKXE=
+]
+INFO	[2020-08-04 16:31:19:997] <18772> DNS LOOKUP OK(203.238.37.3:203.238.37.3:34049) laptime:0
+INFO	[2020-08-04 16:31:20:1] <18772> SOCKET CONNECT OK
+INFO	[2020-08-04 16:31:20:1] <18772> SEND OK
+INFO	[2020-08-04 16:31:20:175] <18772> RECV OK
+DEBUG	[2020-08-04 16:31:20:175] <18772> MSG_FROM_PG:[0150300175D SHA1                   0                                      300630INIpayTest                 100INIphpRPAYINIpayTest20200804163119966557<?xml version="1.0" encoding="UTF-8"?>
+<INIpay>
+  <PartCancelInfo>
+    <PayMethod>Card</PayMethod>
+    <ResultCode>120000</ResultCode>
+    <ResultMsg urlencode="1">%C1%A4%BB%F3%C3%B3%B8%AE%B5%C7%BE%FA%BD%C0%B4%CF%B4%D9.</ResultMsg>
+    <SessionKey>8HQCSd7LiKTsGnS7s4Hi4AuAtugibTrHgfnoLT0lqMD524UxFJoECE/CuAOEBVv8
+h/o7JH7Kfr6lhy18vVTJ6QoXbvoSvTXrfBzFa+ZlI1mUK+xNCAVk60E4JQL7w3CB
+/hP3lGA74z2DT+0thgRIqLjod+3Dlung5ApYVPJBk/6rY84pLhbPNA==
+</SessionKey>
+    <Encrypted>2HWU1PM+gLVQywxgRWHuhjTvKatE0Q66xy7W1q7wEpiWzxb1zg8BMqDswlCRSpEG
+B7C1WFDx5PKhFUOfwJImTYNjN6sqwFSFMT2PuGGDhAY+LjadJiWsLsCz9uYadcHv
+WJcAaGmO9Q1vW/8dGyAJtVz1T8M7Ep/3Y3dpa8IDgmWrllhLP0Bw8i4GcfPW0Bcz
+WbTwKNe/MxbHF05/uwEzby4Dagb1MbZQVz17JNDgB02z1+9n7NVNXiL4LZERBw70
+PLyloy1PpJA4MWCwMt8VY0SY9zzmfOqAgsKtlEICzj2rlcq9BAMLr1PaBQzgsjNT
+Egd5Bp6NLR+sdXQWz6xuOgonOOixMLGb0sycKObrnPSxpK1gQ7FUXH13L63Fg6Pc
+Ou1tPaDSBvo1f5WqFsEmtoStE/Fk8p8QRfMd+xZdqmOoDEPLBJbkjqZn+0BykB8l
+2iaNqTLlh/afU24S/BRb11bBVjoSNlpQcQzQzWE2Be1Xbstq9vFFXemqbck34CgE
+HceCnQihxrBGPEePhTq5GOkHEy81fPK/AVoV0o7xuSHEcmqjaZokCao+du2kErqf
+MEqfBiCdgRIJr6pPxVdT3P2Qx+yoxRofnWYIbz0Yu+ejgUUstkJKcjlJZl0TsRPn
+6iouglJzS9+CURrmGJQEmg==
+</Encrypted>
+  </PartCancelInfo>
+  <ManageInfo/>
+  <ReservedInfo>
+    <MReserved1 urlencode="1"></MReserved1>
+    <MReserved2 urlencode="1"></MReserved2>
+    <MReserved3 urlencode="1"></MReserved3>
+    <PGReserved1 urlencode="1"></PGReserved1>
+    <PGReserved2 urlencode="1"></PGReserved2>
+    <PGReserved3 urlencode="1"></PGReserved3>
+  </ReservedInfo>
+</INIpay>
+OsWU6ffTn3ec2KgOuC1yp6Ze/4K+YqCbn9VFwFudE3XYdnIdXiVKt+0+YksS0HEs
+7NU1Gct4CaemrSAh6lehszyKkXufBWnYZXdZENwZAMRLzPsf041BiG9VdPsO2Uaw
+A8xjalcksRPJK556l4zkDvEpjU9qnChjuzj4ZbkPIPw=
+]
+INFO	[2020-08-04 16:31:20:175] <18772> VERIFY OK
+INFO	[2020-08-04 16:31:20:175] <18772> PARSE HEAD OK
+INFO	[2020-08-04 16:31:20:175] <18772> PARSE BODY OK
+INFO	[2020-08-04 16:31:20:176] <18772> DECRYPT OK
+DEBUG	[2020-08-04 16:31:20:176] <18772> DECRYPT MSG:[<?xml version="1.0" encoding="UTF-8"?>
+<PartCancelInfo>
+  <PRTC_TID>StdpayCARDINIpayTest20200804160901475591</PRTC_TID>
+  <PRTC_Price>100</PRTC_Price>
+  <PRTC_Remains>800</PRTC_Remains>
+  <PRTC_Quota>00</PRTC_Quota>
+  <PRTC_Type>1</PRTC_Type>
+  <CancelDate>20200804</CancelDate>
+  <CancelTime>163545</CancelTime>
+  <CARD_ApplNum></CARD_ApplNum>
+  <ExchangeRate></ExchangeRate>
+  <MOID urlencode="1"></MOID>
+  <PRTC_Cnt>1</PRTC_Cnt>
+  <PRTC_SubRemains></PRTC_SubRemains>
+</PartCancelInfo>]
+INFO	[2020-08-04 16:31:20:176] <18772> DECRYPT PARSE OK
+INFO	[2020-08-04 16:31:20:176] <18772> END repay 정상처리되었습니다. Laptime:[0.18sec]
+INFO	[2020-08-04 16:31:20:176] <18772> ===============================================================
+INFO	[2020-08-04 16:31:50:666] <18974> START INIPHP repay (V5047-170421)(OS:Linux3.10.0-327.10.1.el7.x86_64,PHP:7.0.7)
+DEBUG	[2020-08-04 16:31:50:666] <18974> inipayhome:/home/hosting_users/s019/www/pg/inipay
+DEBUG	[2020-08-04 16:31:50:666] <18974> type:repay
+DEBUG	[2020-08-04 16:31:50:666] <18974> no_acct:
+DEBUG	[2020-08-04 16:31:50:666] <18974> nm_acct:
+DEBUG	[2020-08-04 16:31:50:666] <18974> pgid:INIphpRPAY
+DEBUG	[2020-08-04 16:31:50:666] <18974> subpgip:203.238.3.10
+DEBUG	[2020-08-04 16:31:50:666] <18974> debug:true
+DEBUG	[2020-08-04 16:31:50:666] <18974> mid:INIpayTest
+DEBUG	[2020-08-04 16:31:50:666] <18974> admin:1111
+DEBUG	[2020-08-04 16:31:50:666] <18974> oldtid:StdpayCARDINIpayTest20200804160901475591
+DEBUG	[2020-08-04 16:31:50:666] <18974> currency:
+DEBUG	[2020-08-04 16:31:50:666] <18974> price:300
+DEBUG	[2020-08-04 16:31:50:666] <18974> confirm_price:500
+DEBUG	[2020-08-04 16:31:50:666] <18974> buyeremail:nfor@nfor.net
+INFO	[2020-08-04 16:31:50:666] <18974> Check Field OK
+INFO	[2020-08-04 16:31:50:666] <18974> Make TID OK INIphpRPAYINIpayTest20200804163150665843
+INFO	[2020-08-04 16:31:50:666] <18974> PI PUB KEY LOAD OK []
+INFO	[2020-08-04 16:31:50:667] <18974> PG PUB KEY LOAD OK [30]
+INFO	[2020-08-04 16:31:50:667] <18974> MERCHANT PRIV KEY LOAD OK
+INFO	[2020-08-04 16:31:50:667] <18974> MERCHANT PUB KEY LOAD OK [0]
+DEBUG	[2020-08-04 16:31:50:667] <18974> MAKE ENCRYPT OK[<?xml version="1.0" encoding="UTF-8"?>
+<PartCancelInfo>
+	  <PRTC_TID>StdpayCARDINIpayTest20200804160901475591</PRTC_TID>
+	  <PRTC_Price>300</PRTC_Price>
+	  <PRTC_Remains>500</PRTC_Remains>
+	  <PRTC_Quota/>
+	  <PRTC_Interest/>
+	  <PRTC_NoAcctFNBC/>
+	  <PRTC_NmAcctFNBC/></PartCancelInfo>]
+INFO	[2020-08-04 16:31:50:667] <18974> MAKE BODY OK
+INFO	[2020-08-04 16:31:50:668] <18974> SIGN OK
+INFO	[2020-08-04 16:31:50:668] <18974> MAKE HEAD OK
+DEBUG	[2020-08-04 16:31:50:668] <18974> MSG_TO_PG:[0108200175D SHA1                   0                                      300620INIpayTest                 300INIphpRPAYINIpayTest20200804163150665843<?xml version="1.0" encoding="UTF-8"?>
+<INIpay>
+	  <PartCancelInfo>
+	    <SessionKey>TqaWiv0+/AKUYOuiSng7jNfi6i3sSSuY47X3MNC5We5wsEIfkMomtrBhjIt+oRmK
+eJxohgMbTzOFMutZlEXlqZJXsYJGhd4DH0SjgICryMz9b028X1lWVvsfc34LufWE
+0aq+JJHVNKfiIAHGVXG3216jkuzQd8bWr7tqk/s4rj/CzZxsF6vz9g==
+</SessionKey>
+	    <Encrypted>2Sfko5DFqoYuXbJX3T3eWoybjOWw6Tm0MEK0mGd5IBrpU0JbbQ3DU6E4VifwJ4Xx
+l+nrnA7MdWNwQnJKjZzmtCo924VFcSxFOicH4uWtPvtAbp5hS5uEHGuhsfOVjYNc
+dOgZXWNeaaOW11gOzfDUSaw9a0zj63TQPpu5AwTNye57O+iWVqbZVtVN2brbQavG
+Z7hbyvDn+sOcONWyNUbb4K98Gmy4La4NB55X+ZcbI+QhVLprTJZckatChURVxl3L
+7r/Nhi5B0MjjYxnmaJqAnAhbHQSWrs+2WMVtI5/jUN59kgxY1OAeuQP3tf82cHfY
+mmCgjoh5hh9BtrPhW85pacSNYnQYF4pkp/4wa6fzFft5/rfMXDASKj94el4gi4Rw
+</Encrypted></PartCancelInfo>
+	  <GoodsInfo>
+	    <Tax/>
+	    <TaxFree/>
+	    <Currency/></GoodsInfo>
+	  <ReservedInfo>
+	    <MReserved1/>
+	    <MReserved2/>
+	    <MReserved3/></ReservedInfo>
+	  <ManageInfo>
+	    <Language/>
+	    <URL/>
+	    <TXVersion>5047B170421repayLinux     PHPchkfake   3.10.0-327.10.1.el7.x86_64PHP:</TXVersion>
+	    <TXUserID/>
+	    <TXRegNum/></ManageInfo></INIpay>yUb77dN3takFn5sQh14jkiKWCN7wXVfqSv+Rj79rPnvs+piFiuuYd6Y3PvMRiLtJ
+RoD8pcsFeFGghSWZVRgJWUvt9XSKm2zYx8xEfddTg9UP70hmvZydCiMnf719J71F
+03dnkg3hRubsN/iJeQcJx4+xjZo1nTv3Zw8XINw6yVo=
+]
+INFO	[2020-08-04 16:31:50:668] <18974> DNS LOOKUP OK(203.238.37.3:203.238.37.3:34049) laptime:0
+INFO	[2020-08-04 16:31:50:672] <18974> SOCKET CONNECT OK
+INFO	[2020-08-04 16:31:50:672] <18974> SEND OK
+INFO	[2020-08-04 16:31:50:805] <18974> RECV OK
+DEBUG	[2020-08-04 16:31:50:806] <18974> MSG_FROM_PG:[0150300175D SHA1                   0                                      300630INIpayTest                 300INIphpRPAYINIpayTest20200804163150665843<?xml version="1.0" encoding="UTF-8"?>
+<INIpay>
+  <PartCancelInfo>
+    <PayMethod>Card</PayMethod>
+    <ResultCode>120000</ResultCode>
+    <ResultMsg urlencode="1">%C1%A4%BB%F3%C3%B3%B8%AE%B5%C7%BE%FA%BD%C0%B4%CF%B4%D9.</ResultMsg>
+    <SessionKey>sXaC38Y+1j51Gem2z7rT3U3/Uud/MQjw6lJCIgRU+lePTilwkepqbL7bSu11KR/i
+KPIGJK1ky32NUDGGQL1b9TvuTDeWebyE+LB+GRYl1WYKmfuCp9iFLngBogiou9vB
+nkcV0TEdPKkwS38uNTMifBFFA1IDSoe7lxIRK265f7I87GdXj3C3Uw==
+</SessionKey>
+    <Encrypted>k9JykEPI8INGso6FMUEiIjNck4IlyZqNXxyxMw4NSk0TgZZPITBQdiH8UDW4lEhe
+R34gFEpAKJc+ibzizzZawz92INMPPjha1grP28Dq0I9dRFS/kzaL/7yfi6CAu1ES
+t+zwX3CJLrzj6WgnutyXExrriTgDz/lwN5hktKyBV0WEShrw0zcFLYJC0tD8dqqT
+L2h6vTxBpZKszflSuyFNJiW9eNPkvdtIh7pWP07xANFwCKYpVHkbKz4ODPgUtp8i
+PnvMAxJiWlcSFTuvbcnAN5oLS4YXs5lNwT3E7nz5TUp69qYcFslgPbB8fx1YiZZX
+cVla22cBxKeankeQYI+f3PHhP3DrVENNgLMP/p7lpbpVcdv9MB69wUOEKDuiSLSd
+TOtdiRqsNJxvQKj4hcxfOz9dvAJZmfIl79joZMLvSt9i9ToM2i+ncA9XPxhoAMqX
+RsdAYiMrKnvpV5L3UPZdpglUMoqNclDCck42pNxVwnG/3qQiIWfD2GtTGRJYEUT5
+vF3u0BmbkeuCBif3Rg83x4EfZ6o2Csphs23IkqC6/xIW1P+/nHioPbD47PAnkKX/
+NQMllPb1Ptao+rWbS5Wr2ahGPBtYwbNir+yINJPy10YnlPBsehgKNBhRZPwooGxe
+l4xIK4HyKbfbmSWK8BhdKg==
+</Encrypted>
+  </PartCancelInfo>
+  <ManageInfo/>
+  <ReservedInfo>
+    <MReserved1 urlencode="1"></MReserved1>
+    <MReserved2 urlencode="1"></MReserved2>
+    <MReserved3 urlencode="1"></MReserved3>
+    <PGReserved1 urlencode="1"></PGReserved1>
+    <PGReserved2 urlencode="1"></PGReserved2>
+    <PGReserved3 urlencode="1"></PGReserved3>
+  </ReservedInfo>
+</INIpay>
+DeAeTWHb2YwspmtGOUHOZYNC8rq+T3F8Nw75wmzpRFmLTbM8gJwgc9hCb9H8WCh+
+Cc+vQ/3m+4i6t5IRhVjvyucgDBI0+8XRxbSr5Wly3kiHa/flApzJXFCDbSc/JhtA
+eh47Pp+9AVDCHyqR8ND1OmnYlgOoV8vnGX+yWOlmYEs=
+]
+INFO	[2020-08-04 16:31:50:806] <18974> VERIFY OK
+INFO	[2020-08-04 16:31:50:806] <18974> PARSE HEAD OK
+INFO	[2020-08-04 16:31:50:806] <18974> PARSE BODY OK
+INFO	[2020-08-04 16:31:50:806] <18974> DECRYPT OK
+DEBUG	[2020-08-04 16:31:50:806] <18974> DECRYPT MSG:[<?xml version="1.0" encoding="UTF-8"?>
+<PartCancelInfo>
+  <PRTC_TID>StdpayCARDINIpayTest20200804160901475591</PRTC_TID>
+  <PRTC_Price>300</PRTC_Price>
+  <PRTC_Remains>500</PRTC_Remains>
+  <PRTC_Quota>00</PRTC_Quota>
+  <PRTC_Type>1</PRTC_Type>
+  <CancelDate>20200804</CancelDate>
+  <CancelTime>163615</CancelTime>
+  <CARD_ApplNum></CARD_ApplNum>
+  <ExchangeRate></ExchangeRate>
+  <MOID urlencode="1"></MOID>
+  <PRTC_Cnt>2</PRTC_Cnt>
+  <PRTC_SubRemains></PRTC_SubRemains>
+</PartCancelInfo>]
+INFO	[2020-08-04 16:31:50:807] <18974> DECRYPT PARSE OK
+INFO	[2020-08-04 16:31:50:807] <18974> END repay 정상처리되었습니다. Laptime:[0.14sec]
+INFO	[2020-08-04 16:31:50:807] <18974> ===============================================================
+INFO	[2020-08-04 16:33:36:530] <18974> START INIPHP repay (V5047-170421)(OS:Linux3.10.0-327.10.1.el7.x86_64,PHP:7.0.7)
+DEBUG	[2020-08-04 16:33:36:530] <18974> inipayhome:/home/hosting_users/s019/www/pg/inipay
+DEBUG	[2020-08-04 16:33:36:530] <18974> type:repay
+DEBUG	[2020-08-04 16:33:36:530] <18974> no_acct:
+DEBUG	[2020-08-04 16:33:36:530] <18974> nm_acct:
+DEBUG	[2020-08-04 16:33:36:530] <18974> pgid:INIphpRPAY
+DEBUG	[2020-08-04 16:33:36:530] <18974> subpgip:203.238.3.10
+DEBUG	[2020-08-04 16:33:36:530] <18974> debug:true
+DEBUG	[2020-08-04 16:33:36:530] <18974> mid:INIpayTest
+DEBUG	[2020-08-04 16:33:36:530] <18974> admin:1111
+DEBUG	[2020-08-04 16:33:36:530] <18974> oldtid:StdpayCARDINIpayTest20200804160901475591
+DEBUG	[2020-08-04 16:33:36:530] <18974> currency:
+DEBUG	[2020-08-04 16:33:36:530] <18974> price:300
+DEBUG	[2020-08-04 16:33:36:530] <18974> confirm_price:200
+DEBUG	[2020-08-04 16:33:36:530] <18974> buyeremail:nfor@nfor.net
+INFO	[2020-08-04 16:33:36:530] <18974> Check Field OK
+INFO	[2020-08-04 16:33:36:530] <18974> Make TID OK INIphpRPAYINIpayTest20200804163336303796
+INFO	[2020-08-04 16:33:36:530] <18974> PI PUB KEY LOAD OK []
+INFO	[2020-08-04 16:33:36:530] <18974> PG PUB KEY LOAD OK [30]
+INFO	[2020-08-04 16:33:36:531] <18974> MERCHANT PRIV KEY LOAD OK
+INFO	[2020-08-04 16:33:36:531] <18974> MERCHANT PUB KEY LOAD OK [0]
+DEBUG	[2020-08-04 16:33:36:531] <18974> MAKE ENCRYPT OK[<?xml version="1.0" encoding="UTF-8"?>
+<PartCancelInfo>
+	  <PRTC_TID>StdpayCARDINIpayTest20200804160901475591</PRTC_TID>
+	  <PRTC_Price>300</PRTC_Price>
+	  <PRTC_Remains>200</PRTC_Remains>
+	  <PRTC_Quota/>
+	  <PRTC_Interest/>
+	  <PRTC_NoAcctFNBC/>
+	  <PRTC_NmAcctFNBC/></PartCancelInfo>]
+INFO	[2020-08-04 16:33:36:531] <18974> MAKE BODY OK
+INFO	[2020-08-04 16:33:36:531] <18974> SIGN OK
+INFO	[2020-08-04 16:33:36:532] <18974> MAKE HEAD OK
+DEBUG	[2020-08-04 16:33:36:532] <18974> MSG_TO_PG:[0108200175D SHA1                   0                                      300620INIpayTest                 300INIphpRPAYINIpayTest20200804163336303796<?xml version="1.0" encoding="UTF-8"?>
+<INIpay>
+	  <PartCancelInfo>
+	    <SessionKey>FhoymCc1nzWoNdfZEKrCF38zEpc/OK8n69HtJYg3fSxDkpdJMRZGZt75NC1c9nhj
+d/sW8RHdbjwb5qkGjIUiLOQnRNhnta/nd0TyOM0q48lBbgrMp22AWIdbkhWa/ARn
+6CAzPRtRDPpEhTuh1Ugcb3/eNy1BkxJ8uqjFndA9uOr41Ecr0z0dDQ==
+</SessionKey>
+	    <Encrypted>YMWTJ9ckuwMWpCaT688bcpCLaFu85J74cV/sXlkRayCo+AUG3PniMZ1JYKhHPO0J
+PDMTjmgUECmhdRVVtQkG0ufD43NrGkDp0PGFekPJRjaMQtO95nqra6bfdbJry6Ok
+KQ+cJDkPmK282uSZi02GmJu/5Oikllr7oXLnwsgwxnqQW3Y2FEs4jF6fmGzrhVEz
+g6AQjCJDED5wDrzkxQbu2DCAZ37Avlele9HrK/6l98lu7IvPah9r6eaDKJmDxwd2
+4qTvfQcyZzzXSBTDBgnaIdtNFxpfPq23bQ2maquUE0rN9BuFvPiamcrQ5ozL9CbL
+83dNEGVm3QKL13IQYaqS0sKo7obF9OafpzhmCrWz5Nx2KOZh11wZUEHyhsyiTXhm
+</Encrypted></PartCancelInfo>
+	  <GoodsInfo>
+	    <Tax/>
+	    <TaxFree/>
+	    <Currency/></GoodsInfo>
+	  <ReservedInfo>
+	    <MReserved1/>
+	    <MReserved2/>
+	    <MReserved3/></ReservedInfo>
+	  <ManageInfo>
+	    <Language/>
+	    <URL/>
+	    <TXVersion>5047B170421repayLinux     PHPchkfake   3.10.0-327.10.1.el7.x86_64PHP:</TXVersion>
+	    <TXUserID/>
+	    <TXRegNum/></ManageInfo></INIpay>S8FkJ1S3qq1RAIZEXY198luiDt3aFX2X/SIfWShg8jWAedsTS8A9uFRVUI4qKg2y
+Y1mw7ViWGpsHBQU2CmZ0I0L4Ialvf6Wkq43pDZIA7lvM1EBhGjEHaOhi4IiFFocd
+8c5tSo2o6cc6EQJxbZjzOtVkchy4hgsnIapsNNT4Ak0=
+]
+INFO	[2020-08-04 16:33:36:532] <18974> DNS LOOKUP OK(203.238.37.3:203.238.37.3:34049) laptime:0
+INFO	[2020-08-04 16:33:36:535] <18974> SOCKET CONNECT OK
+INFO	[2020-08-04 16:33:36:535] <18974> SEND OK
+INFO	[2020-08-04 16:33:36:677] <18974> RECV OK
+DEBUG	[2020-08-04 16:33:36:677] <18974> MSG_FROM_PG:[0150300175D SHA1                   0                                      300630INIpayTest                 300INIphpRPAYINIpayTest20200804163336303796<?xml version="1.0" encoding="UTF-8"?>
+<INIpay>
+  <PartCancelInfo>
+    <PayMethod>Card</PayMethod>
+    <ResultCode>120000</ResultCode>
+    <ResultMsg urlencode="1">%C1%A4%BB%F3%C3%B3%B8%AE%B5%C7%BE%FA%BD%C0%B4%CF%B4%D9.</ResultMsg>
+    <SessionKey>X0vA1kZH9j4puKByClbwgqQgBgAzD/pBRwtlJQLS7y3ih9O6uAO3PTUCthScKGOb
+meXLnbjk2LC8xG9pv0RlPpi8DASwfGxHt1yB8pey7dcXf1jclxPc2hNKTYMomm5w
+MoPR3GxE/NZmbGmAjjhKLMqEDfuHy4NF334Rzj73VY2PkgpLmQz/Pw==
+</SessionKey>
+    <Encrypted>/WbUjBspsJo36vpY9yZl9/0LNL0ESmWYqiGud4DAiP30kE2yIvj5oHG8o6TtGfHw
+kMsTXv8P1CPQEhrA1sryTBs/MkCAtpa4ybIhOTdik8+TepZK+tJrhTKXTd0jOKEw
+l3+XlKbBJTpTEgCsY2njuepNRmaLPC9/997P2+U5Abt4krCKmnfdNoVXPGYpC9il
+CC3Sd+BwmytFxju5YQiRYB3KN+iCXCXLY3njiH3VNvrl+V70lpavXV2pvSjfSUC3
+cUVGf/hbBkG0YIpLDJQ3aYkF5wSAoVPev+wmU1ZS3tF9Urt5wskWyfeQ87E/BhZ7
+Lc90qZndQgMPxw1HDorMRibvy2VGMMQXhP1Nrzykd2ROye/G77aCfL5lkUEzO8qG
+Ow9HRfwWbivGlqJ0U0uH62M97J5Lx0Iu71r0xdDstMgfhQm6B2AM4Q1K+dCxdLtg
+XediJlKrSyzWY6bHM5UgwfK6ifgkFOgSHi+cS8z7FYZyh+Ed4iTsl/Q70VhsmsBa
+9o5ZMVUjD47eC5OD3s+PAr3bg/njm802AU5og/KFr9IkqkTA8h54gnfgQgEnsP8S
+rVduS1bOtp7h+tMmhPLzvLZdHBYi89rFiDk5APmUWLiK4s9UewgZYRI8rHSiY6SN
+KN0rmotQPlco4jIXGw2kLw==
+</Encrypted>
+  </PartCancelInfo>
+  <ManageInfo/>
+  <ReservedInfo>
+    <MReserved1 urlencode="1"></MReserved1>
+    <MReserved2 urlencode="1"></MReserved2>
+    <MReserved3 urlencode="1"></MReserved3>
+    <PGReserved1 urlencode="1"></PGReserved1>
+    <PGReserved2 urlencode="1"></PGReserved2>
+    <PGReserved3 urlencode="1"></PGReserved3>
+  </ReservedInfo>
+</INIpay>
+qcm7fJChOHDB/7h0OUqkP/1oHWqGO6zQOYUfiY3HNqFjmXgsw47Tmii6STs0BkMF
+ijm2iGtVOCpx58NEcNCilH4zFZtzafqlacvz1Nzw5cKFTE6+KJibcB8A0z0ZyObc
+gfA8i4D+vVl79oc5uVQ3RRniSoVDmLwZWCjMtYlRWMg=
+]
+INFO	[2020-08-04 16:33:36:677] <18974> VERIFY OK
+INFO	[2020-08-04 16:33:36:677] <18974> PARSE HEAD OK
+INFO	[2020-08-04 16:33:36:677] <18974> PARSE BODY OK
+INFO	[2020-08-04 16:33:36:678] <18974> DECRYPT OK
+DEBUG	[2020-08-04 16:33:36:678] <18974> DECRYPT MSG:[<?xml version="1.0" encoding="UTF-8"?>
+<PartCancelInfo>
+  <PRTC_TID>StdpayCARDINIpayTest20200804160901475591</PRTC_TID>
+  <PRTC_Price>300</PRTC_Price>
+  <PRTC_Remains>200</PRTC_Remains>
+  <PRTC_Quota>00</PRTC_Quota>
+  <PRTC_Type>1</PRTC_Type>
+  <CancelDate>20200804</CancelDate>
+  <CancelTime>163801</CancelTime>
+  <CARD_ApplNum></CARD_ApplNum>
+  <ExchangeRate></ExchangeRate>
+  <MOID urlencode="1"></MOID>
+  <PRTC_Cnt>3</PRTC_Cnt>
+  <PRTC_SubRemains></PRTC_SubRemains>
+</PartCancelInfo>]
+INFO	[2020-08-04 16:33:36:678] <18974> DECRYPT PARSE OK
+INFO	[2020-08-04 16:33:36:678] <18974> END repay 정상처리되었습니다. Laptime:[0.148sec]
+INFO	[2020-08-04 16:33:36:678] <18974> ===============================================================
+INFO	[2020-08-04 16:33:44:247] <18772> START INIPHP repay (V5047-170421)(OS:Linux3.10.0-327.10.1.el7.x86_64,PHP:7.0.7)
+DEBUG	[2020-08-04 16:33:44:247] <18772> inipayhome:/home/hosting_users/s019/www/pg/inipay
+DEBUG	[2020-08-04 16:33:44:247] <18772> type:repay
+DEBUG	[2020-08-04 16:33:44:247] <18772> no_acct:
+DEBUG	[2020-08-04 16:33:44:247] <18772> nm_acct:
+DEBUG	[2020-08-04 16:33:44:247] <18772> pgid:INIphpRPAY
+DEBUG	[2020-08-04 16:33:44:247] <18772> subpgip:203.238.3.10
+DEBUG	[2020-08-04 16:33:44:247] <18772> debug:true
+DEBUG	[2020-08-04 16:33:44:247] <18772> mid:INIpayTest
+DEBUG	[2020-08-04 16:33:44:247] <18772> admin:1111
+DEBUG	[2020-08-04 16:33:44:247] <18772> oldtid:StdpayCARDINIpayTest20200804160901475591
+DEBUG	[2020-08-04 16:33:44:247] <18772> currency:
+DEBUG	[2020-08-04 16:33:44:247] <18772> price:100
+DEBUG	[2020-08-04 16:33:44:247] <18772> confirm_price:100
+DEBUG	[2020-08-04 16:33:44:247] <18772> buyeremail:nfor@nfor.net
+INFO	[2020-08-04 16:33:44:247] <18772> Check Field OK
+INFO	[2020-08-04 16:33:44:247] <18772> Make TID OK INIphpRPAYINIpayTest20200804163344476576
+INFO	[2020-08-04 16:33:44:247] <18772> PI PUB KEY LOAD OK []
+INFO	[2020-08-04 16:33:44:247] <18772> PG PUB KEY LOAD OK [30]
+INFO	[2020-08-04 16:33:44:247] <18772> MERCHANT PRIV KEY LOAD OK
+INFO	[2020-08-04 16:33:44:248] <18772> MERCHANT PUB KEY LOAD OK [0]
+DEBUG	[2020-08-04 16:33:44:248] <18772> MAKE ENCRYPT OK[<?xml version="1.0" encoding="UTF-8"?>
+<PartCancelInfo>
+	  <PRTC_TID>StdpayCARDINIpayTest20200804160901475591</PRTC_TID>
+	  <PRTC_Price>100</PRTC_Price>
+	  <PRTC_Remains>100</PRTC_Remains>
+	  <PRTC_Quota/>
+	  <PRTC_Interest/>
+	  <PRTC_NoAcctFNBC/>
+	  <PRTC_NmAcctFNBC/></PartCancelInfo>]
+INFO	[2020-08-04 16:33:44:248] <18772> MAKE BODY OK
+INFO	[2020-08-04 16:33:44:248] <18772> SIGN OK
+INFO	[2020-08-04 16:33:44:248] <18772> MAKE HEAD OK
+DEBUG	[2020-08-04 16:33:44:248] <18772> MSG_TO_PG:[0108200175D SHA1                   0                                      300620INIpayTest                 100INIphpRPAYINIpayTest20200804163344476576<?xml version="1.0" encoding="UTF-8"?>
+<INIpay>
+	  <PartCancelInfo>
+	    <SessionKey>bb2esVMJcfVU+0YIRbfH1h1QlkNjoufZP2/vBdBYtDU4ZXOLpze57LEhkyMjP02Y
+qitJnlHAqdpZ3RjDfcFoUaLduIs0RV/6IM1gBry40KPfbYOxY83KZv2IQcyi5C5w
+ZSDC6U0WENbpGw6uqXdW2kZybVFJlsUdblVArPmtgs5jCGXa5zTKwQ==
+</SessionKey>
+	    <Encrypted>x4kqakvuHv/5nMqEu5QPKB2L4HzXW8mOzycPAMTr2iewmyKhuRBhjwvSd2dBweKX
+tuHwhHVBlKzPLAAL/3FKRvIf+oHmxdwix+iH0ZDlKQLm1Y2CRq/Yc9+DYleMom1O
+ITDbQcWVOyrfKP6mxRU3r2vPqwpFw4692P5hpWzndeLrMlmC16HnPJ+Eo2yxz2+M
+fJW7YFBDKT6D9vn8dEldq5pxfGlL2/8uDiSYFEt9uVxGbv28xJ7tcJOn1DOoVkCV
+p0g7uFaIS0DwI5iN75+b9u5uBse/dbY4voBCy8mzUOW5hm6/9OQgKvPiXrK7+ynG
+8FWRHmKLCkOCoGmTa6+qgJCSxIE724PZ2NVCAhHrAaMKLfY6EZMExn6Jc0mJ01vL
+</Encrypted></PartCancelInfo>
+	  <GoodsInfo>
+	    <Tax/>
+	    <TaxFree/>
+	    <Currency/></GoodsInfo>
+	  <ReservedInfo>
+	    <MReserved1/>
+	    <MReserved2/>
+	    <MReserved3/></ReservedInfo>
+	  <ManageInfo>
+	    <Language/>
+	    <URL/>
+	    <TXVersion>5047B170421repayLinux     PHPchkfake   3.10.0-327.10.1.el7.x86_64PHP:</TXVersion>
+	    <TXUserID/>
+	    <TXRegNum/></ManageInfo></INIpay>oeJQsd7ey9z7m6NF/QG44l4usMvpR9+8XujRANY87AykZJ2yMK/GYJWJWe7voQsI
+WH8Wl9SbSLQSsP3Attd5EVv+weGLL7FtEV1558tHacNnHhLURVWnlj7MHd/4gruc
+MW0nBKlJIbUU7AMhwFQXy9qKtBtd3I1YCnUSj020YyY=
+]
+INFO	[2020-08-04 16:33:44:249] <18772> DNS LOOKUP OK(203.238.37.3:203.238.37.3:34049) laptime:0
+INFO	[2020-08-04 16:33:44:252] <18772> SOCKET CONNECT OK
+INFO	[2020-08-04 16:33:44:252] <18772> SEND OK
+INFO	[2020-08-04 16:33:44:388] <18772> RECV OK
+DEBUG	[2020-08-04 16:33:44:389] <18772> MSG_FROM_PG:[0150300175D SHA1                   0                                      300630INIpayTest                 100INIphpRPAYINIpayTest20200804163344476576<?xml version="1.0" encoding="UTF-8"?>
+<INIpay>
+  <PartCancelInfo>
+    <PayMethod>Card</PayMethod>
+    <ResultCode>120000</ResultCode>
+    <ResultMsg urlencode="1">%C1%A4%BB%F3%C3%B3%B8%AE%B5%C7%BE%FA%BD%C0%B4%CF%B4%D9.</ResultMsg>
+    <SessionKey>zVEDrheIttb5RSmrrM/1mi4oNyvnkc3oCcpBk5S2KgwvDEpEiz8EPMEgjl+owlBq
+C/avq+AUONTvsCs0AuszgzbLEZoHEuPeqMdhgsorI7ich6XvG9l48ZfVY9wvDbK7
+gP56QfUj5fmivu4sv91X5Hsbm0YCxo+REjmqhkd1AGoyikbbIL/GmQ==
+</SessionKey>
+    <Encrypted>ei2hzlRx9ceiLairC7e8hoy4V4qFa17pY5iUZrI+oDHkXhB/1tm9Xi5O1z3jzzzA
+ZEi8Yuse6Vcn6WXpxLJEtadFpksaXRfZiSEPU4tjiUg574HnSl/dDfE4Jg9T/r3s
+Bs1P1KmOAA+kb6Qi9u4ir/CMi8cDVGlj7KUhINKQ9itmin3G8ZChFjJySJEecUhq
+A/to1ZFzY+plCC41Q4nZvdaTQx9WjJs2uFBXVgcrX/AGzEBSv47unznV4XbvwuH+
+fTqt3KFZJXG9Kw9EnxnebYIwhvtA5GoEVEOnrgaOS7QtIW62Bkr6EJJGBjMXwuCB
+PmUFlOInK2jEWxbgV/0hOh8Cgawyb5fyU86PVTb/PBGKRfLT8iily7ubAygnKDlx
+jgbZqRSM6XccHqy8ki6PaP0d15/5BQ1t6sNkh8WAC4MO8EpxBGj6FoeELwAoPajH
+hPS+1hSK2PLiE9LLHHXjVs1Jhn3riZ+xSob2bmrBwpt3ADOirfL2ixJPJ7csGv5X
+nR01CLBjHbJsy9te/1jY1RU6T7UdRriTfS/EQ+jQq7n5QbmzVnO26kkLTGtOva4n
+n7KmVXVV/OPKjIcrjRkO6DvnJBN6knn2Of6YqqY2On/GwrVeM8oKNL1BHlUITMAo
+84aiEX9KdkIJysVgHSiLnA==
+</Encrypted>
+  </PartCancelInfo>
+  <ManageInfo/>
+  <ReservedInfo>
+    <MReserved1 urlencode="1"></MReserved1>
+    <MReserved2 urlencode="1"></MReserved2>
+    <MReserved3 urlencode="1"></MReserved3>
+    <PGReserved1 urlencode="1"></PGReserved1>
+    <PGReserved2 urlencode="1"></PGReserved2>
+    <PGReserved3 urlencode="1"></PGReserved3>
+  </ReservedInfo>
+</INIpay>
+3mMeHlNC5bPtAsFBQFq0S2kj1Cdit8j0SniIzI1tPYehUR0ccbFWIAmusvuansQY
+7OercW+oyCaWsgdYTYsxt4p5GxdNEaeXb91TrODPqHVj25kGmrQsG/bb09HDd1DW
+f+8vKflA9Etjh5Q9ZVtqHofa5t8yzvYUkG4Br7e5M9A=
+]
+INFO	[2020-08-04 16:33:44:389] <18772> VERIFY OK
+INFO	[2020-08-04 16:33:44:389] <18772> PARSE HEAD OK
+INFO	[2020-08-04 16:33:44:389] <18772> PARSE BODY OK
+INFO	[2020-08-04 16:33:44:389] <18772> DECRYPT OK
+DEBUG	[2020-08-04 16:33:44:389] <18772> DECRYPT MSG:[<?xml version="1.0" encoding="UTF-8"?>
+<PartCancelInfo>
+  <PRTC_TID>StdpayCARDINIpayTest20200804160901475591</PRTC_TID>
+  <PRTC_Price>100</PRTC_Price>
+  <PRTC_Remains>100</PRTC_Remains>
+  <PRTC_Quota>00</PRTC_Quota>
+  <PRTC_Type>1</PRTC_Type>
+  <CancelDate>20200804</CancelDate>
+  <CancelTime>163809</CancelTime>
+  <CARD_ApplNum></CARD_ApplNum>
+  <ExchangeRate></ExchangeRate>
+  <MOID urlencode="1"></MOID>
+  <PRTC_Cnt>4</PRTC_Cnt>
+  <PRTC_SubRemains></PRTC_SubRemains>
+</PartCancelInfo>]
+INFO	[2020-08-04 16:33:44:389] <18772> DECRYPT PARSE OK
+INFO	[2020-08-04 16:33:44:389] <18772> END repay 정상처리되었습니다. Laptime:[0.143sec]
+INFO	[2020-08-04 16:33:44:389] <18772> ===============================================================

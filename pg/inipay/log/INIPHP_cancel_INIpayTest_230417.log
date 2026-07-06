@@ -1,0 +1,279 @@
+INFO	[2023-04-17 16:07:51:805] <18210> START INIPHP cancel (V5047-170421)(OS:Linux3.10.0-1062.12.1.el7.x86_64,PHP:7.0.0p1)
+DEBUG	[2023-04-17 16:07:51:817] <18210> inipayhome:/yoosub92/www/pg/inipay
+DEBUG	[2023-04-17 16:07:51:817] <18210> debug:true
+DEBUG	[2023-04-17 16:07:51:817] <18210> mid:INIpayTest
+DEBUG	[2023-04-17 16:07:51:817] <18210> tid:StdpayCARDINIpayTest20230414170351225147
+DEBUG	[2023-04-17 16:07:51:817] <18210> admin:1111
+DEBUG	[2023-04-17 16:07:51:817] <18210> cancelmsg:Í¥ÄÎ¶¨ÏûêÏûÑÏùòÏ∑®ÏÜå
+DEBUG	[2023-04-17 16:07:51:817] <18210> type:cancel
+INFO	[2023-04-17 16:07:51:817] <18210> Check Field OK
+INFO	[2023-04-17 16:07:51:825] <18210> INPUT TID > StdpayCARDINIpayTest20230414170351225147
+INFO	[2023-04-17 16:07:51:825] <18210> PI PUB KEY LOAD OK []
+INFO	[2023-04-17 16:07:51:865] <18210> PG PUB KEY LOAD OK [30]
+INFO	[2023-04-17 16:07:51:914] <18210> MERCHANT PRIV KEY LOAD OK
+INFO	[2023-04-17 16:07:51:915] <18210> MERCHANT PUB KEY LOAD OK [0]
+DEBUG	[2023-04-17 16:07:52:103] <18210> MAKE ENCRYPT OK[<?xml version="1.0" encoding="UTF-8"?>
+<CancelInfo>
+	  <CancelTID>StdpayCARDINIpayTest20230414170351225147</CancelTID>
+	  <CancelMsg urlencode="1">%EA%B4%80%EB%A6%AC%EC%9E%90%EC%9E%84%EC%9D%98%EC%B7%A8%EC%86%8C</CancelMsg>
+	  <CancelReason/>
+	  <RefundAcctNum/>
+	  <RefundBankCode/>
+	  <RefundAcctName/></CancelInfo>]
+INFO	[2023-04-17 16:07:52:103] <18210> MAKE BODY OK
+INFO	[2023-04-17 16:07:52:105] <18210> SIGN OK
+INFO	[2023-04-17 16:07:52:105] <18210> MAKE HEAD OK
+DEBUG	[2023-04-17 16:07:52:105] <18210> MSG_TO_PG:[0104700175D SHA1                   0                                      300420INIpayTest                    StdpayCARDINIpayTest20230414170351225147<?xml version="1.0" encoding="UTF-8"?>
+<INIpay>
+	  <CancelInfo>
+	    <SessionKey>2PdOOgW9KC6X+dDOF++Ci92GeMjLebjSxjQN0N71xxo2QCylLo7cEnDVGMvwWalG
+tYKNOIv66xdEH+26/ozr8jgLoCKC5PMAfu1hZkVYT7i84gl4Xn2moE6txsckHK37
+1O5BpDQ3KWLeBcJr1UfIUY5HpcyA2yUyGWDepVazGO/tLkNZaHbMdg==
+</SessionKey>
+	    <Encrypted>lfruBvMZ/FwdBCuAhYCVW3Sm4kQxPRSPcKdc5KURXxq83XKHqJmOMduqJ/dgEPQR
+gglIgJVzijXklupZLfQQK15N5Fl7BtraZz72WcPH40YG+z1awX2lvN3vAehIV9JI
+DgsL//p7MsJirSF9sgQA/ySk3q5yPAAM98tJ7CN9ale2tA2m2whydXlme9vyop8P
+EQ80TLfU83m8pylNVHUx9SNQqUX7rt357LlR9zqOw8DH+Rx0Q4eIe2kl2Bkfx1zv
+u/qpxQ8rkbm15WdfzWDZOY7VD796hvETz4eVLEdbHk1u2rNJT7pPi10uc49sn6IX
+I/bvp19fgn0qdwbzmEnh31IVim7g0YUYWeehK4ZNBnX80GMaYSSciX6FssYD//ox
+BINAW1u1xAOb/1Nad23xc4mjcnS8maNFPWt60e6t8cI=
+</Encrypted></CancelInfo>
+	  <ReservedInfo>
+	    <MReserved1/>
+	    <MReserved2/>
+	    <MReserved3/></ReservedInfo>
+	  <ManageInfo>
+	    <Language/>
+	    <URL/>
+	    <TXVersion>5047B170421canceLinux     PHPchkfake   3.10.0-1062.12.1.el7.x86_64PHP</TXVersion>
+	    <TXUserID/>
+	    <TXRegNum/></ManageInfo></INIpay>9cj8BxMPnN3bLrEWgmiAyGyjWcelj2+JK3i4o4aWEt8a/P0+SGO9IPLVSJIVaTyF
+IBTumCtiTMfUFfXjGlh44FinpSb1rZ24LZiqmMghLyCiGMwKopGbWNOEiKk3vNlv
+Yqu8kJLT9bVb6bnR3aYiiPlcix5BQh9eQSclyVxqYFs=
+]
+INFO	[2023-04-17 16:07:52:105] <18210> DNS LOOKUP OK(203.238.37.3:203.238.37.3:34049) laptime:0
+INFO	[2023-04-17 16:07:52:117] <18210> SOCKET CONNECT OK
+INFO	[2023-04-17 16:07:52:117] <18210> SEND OK
+INFO	[2023-04-17 16:07:52:238] <18210> RECV OK
+DEBUG	[2023-04-17 16:07:52:238] <18210> MSG_FROM_PG:[0078000175D SHA1                   0                                      300430INIpayTest                    StdpayCARDINIpayTest20230414170351225147<?xml version="1.0" encoding="UTF-8"?><INIpay>
+<CancelInfo>
+<ResultCode>500626</ResultCode>
+<ResultMsg urlencode="1">%B1%E2+%C3%EB%BC%D2+%B0%C5%B7%A1</ResultMsg>
+<SessionKey>PX/K+RcZVpeh6y0HyczLD03h86GIdugrZl8datzMiopSj/LteF9BIHSLZ8seaMdl
+bslzlgyqmFh1DEwmF/osG12KAHg0Y8C0fYlk5hPpcnXSx1PTK/tR/pR7+V33EdjZ
+AA37/K+ENP0aBnVHdRnyLDE3nt1Nbe3tUtxx1yWHCBo5nT2Vtrk7LQ==
+</SessionKey>
+<Encrypted>vuMzafO74aaBYYgnMubuwQl0rzivoX+8X4VJPH3bqeZ7SzplVd7KaE639aRKpF+A
+rsNpeNadCsa53CTXaMrrsMQ73jo/Q067+IQdV5v2LAtVihQjg2H//I72IsMc3+y5
+snEfzW7Nz+DKho/tB4Y7f5xFp7BlroNEwGkk6AgnaYPvxJkzq3kI6QuvCscphABg
+Vs1lB/JUJHlI1JN2clD1Rbrb4kr5JGk2
+</Encrypted>
+</CancelInfo>
+<ManageInfo/>
+<ReservedInfo>
+<MReserved1 urlencode="1"/>
+<MReserved2 urlencode="1"/>
+<MReserved3 urlencode="1"/>
+</ReservedInfo>
+</INIpay>
+EDTH4gujqYHwmwWNf/BGfOeZt1y4ZsptzoJvaAlEfj6JteSEunW2GTFWNpmyfwKR
+C4orGv3AEZ6rFq0oJ9IYquuo+Q3hxT5xWB0I6fHRAyKewDgWceKMUjgjjeqqCiPj
+DYNEg5WwJAUEFlq2Hd3ZkWLpr0vx2OVuM6t4gLC9hH0=
+]
+INFO	[2023-04-17 16:07:52:238] <18210> VERIFY OK
+INFO	[2023-04-17 16:07:52:238] <18210> PARSE HEAD OK
+INFO	[2023-04-17 16:07:52:262] <18210> PARSE BODY OK
+INFO	[2023-04-17 16:07:52:284] <18210> DECRYPT OK
+DEBUG	[2023-04-17 16:07:52:284] <18210> DECRYPT MSG:[<?xml version="1.0" encoding="UTF-8"?><CancelInfo>
+<ResultCode>500626</ResultCode>
+<ResultMsg urlencode="1">%B1%E2+%C3%EB%BC%D2+%B0%C5%B7%A1</ResultMsg>
+</CancelInfo>]
+INFO	[2023-04-17 16:07:52:285] <18210> DECRYPT PARSE OK
+INFO	[2023-04-17 16:07:52:285] <18210> END cancel [500626|±‚ √Îº“ ∞≈∑°] Laptime:[0.485sec]
+INFO	[2023-04-17 16:07:52:285] <18210> ===============================================================
+INFO	[2023-04-17 16:07:58:882] <48333> START INIPHP cancel (V5047-170421)(OS:Linux3.10.0-1062.12.1.el7.x86_64,PHP:7.0.0p1)
+DEBUG	[2023-04-17 16:07:58:882] <48333> inipayhome:/yoosub92/www/pg/inipay
+DEBUG	[2023-04-17 16:07:58:882] <48333> debug:true
+DEBUG	[2023-04-17 16:07:58:882] <48333> mid:INIpayTest
+DEBUG	[2023-04-17 16:07:58:882] <48333> tid:StdpayCARDINIpayTest20230414170351225147
+DEBUG	[2023-04-17 16:07:58:882] <48333> admin:1111
+DEBUG	[2023-04-17 16:07:58:882] <48333> cancelmsg:Í¥ÄÎ¶¨ÏûêÏûÑÏùòÏ∑®ÏÜå
+DEBUG	[2023-04-17 16:07:58:882] <48333> type:cancel
+INFO	[2023-04-17 16:07:58:882] <48333> Check Field OK
+INFO	[2023-04-17 16:07:58:882] <48333> INPUT TID > StdpayCARDINIpayTest20230414170351225147
+INFO	[2023-04-17 16:07:58:882] <48333> PI PUB KEY LOAD OK []
+INFO	[2023-04-17 16:07:58:883] <48333> PG PUB KEY LOAD OK [30]
+INFO	[2023-04-17 16:07:58:883] <48333> MERCHANT PRIV KEY LOAD OK
+INFO	[2023-04-17 16:07:58:883] <48333> MERCHANT PUB KEY LOAD OK [0]
+DEBUG	[2023-04-17 16:07:58:885] <48333> MAKE ENCRYPT OK[<?xml version="1.0" encoding="UTF-8"?>
+<CancelInfo>
+	  <CancelTID>StdpayCARDINIpayTest20230414170351225147</CancelTID>
+	  <CancelMsg urlencode="1">%EA%B4%80%EB%A6%AC%EC%9E%90%EC%9E%84%EC%9D%98%EC%B7%A8%EC%86%8C</CancelMsg>
+	  <CancelReason/>
+	  <RefundAcctNum/>
+	  <RefundBankCode/>
+	  <RefundAcctName/></CancelInfo>]
+INFO	[2023-04-17 16:07:58:885] <48333> MAKE BODY OK
+INFO	[2023-04-17 16:07:58:886] <48333> SIGN OK
+INFO	[2023-04-17 16:07:58:886] <48333> MAKE HEAD OK
+DEBUG	[2023-04-17 16:07:58:886] <48333> MSG_TO_PG:[0104700175D SHA1                   0                                      300420INIpayTest                    StdpayCARDINIpayTest20230414170351225147<?xml version="1.0" encoding="UTF-8"?>
+<INIpay>
+	  <CancelInfo>
+	    <SessionKey>L8Os2zGMUwPZ1sYJ+2guurxe/TErMfNXAHdCKNY+7h8eSNzwdE3Q0F5ZGOxRxPXZ
+TU5d3Og+Wtmzgi+KXoguJK1E+3GHqWAKKlP+Cy/IXu/ZGiFXEVO3eqDkickQvUP1
+756b3/eiZcSiCucBsY+qG0u2IrIPuP3kTvZ3qHpoRn/iQbNMb7znBA==
+</SessionKey>
+	    <Encrypted>ZUEiEr8eHkmoQ+27/XjP2NoyDJHWmsM7ZEICa4RdZCqDyev+rMsl7ilcY8mIoxLk
+Cbsl5mQhIZHWdDu60ZdwpLLhUvOuhug+T9oDsViUk1rQyNYmvGGmJcN/e+R0kPOK
+LbNmbT79mTc95aIU3OZWfVGaBLXoMe2NwYxWiatrAuzQQxR0D9nn16sQ7c42sSDR
+wjf9st0jceDghiYwVNk/CspilwOECKovt53Kr1p1PgcvxP51Up4qpFn5mpgJKRHx
+Co5dEH1vMnwJKgYQXvvPRBRi/4eeZKM4UevLaggAJAtQOe5XxQAICAkWHCG4bQ9S
+HZD1fCZeftvnQycumXVoix2Zen4oOsDiJ6TyJ7zRAQ3qf/GbXLD6cp63MJEcmdeL
+HehzwzOIYd5QR5eKeul3WEp0jie0n/Xy5CnNFCkKvlo=
+</Encrypted></CancelInfo>
+	  <ReservedInfo>
+	    <MReserved1/>
+	    <MReserved2/>
+	    <MReserved3/></ReservedInfo>
+	  <ManageInfo>
+	    <Language/>
+	    <URL/>
+	    <TXVersion>5047B170421canceLinux     PHPchkfake   3.10.0-1062.12.1.el7.x86_64PHP</TXVersion>
+	    <TXUserID/>
+	    <TXRegNum/></ManageInfo></INIpay>2pnxPdENQCaeFAbo6A2L4J1to5N+OKJed6sts/K3fyEX1+/19OZWJo7XoItTtXK1
+XrA5P4KZGyZD/nmu98xemihpIuAQXMxKeuNLOJfChqcqAGSYc5HTUUhK39iPBYr/
+UC0yuq8JMi1wrxJymIf0BNZU/twPJqhYZLhcLqVBmH8=
+]
+INFO	[2023-04-17 16:07:58:886] <48333> DNS LOOKUP OK(203.238.37.3:203.238.37.3:34049) laptime:0
+INFO	[2023-04-17 16:07:58:889] <48333> SOCKET CONNECT OK
+INFO	[2023-04-17 16:07:58:889] <48333> SEND OK
+INFO	[2023-04-17 16:07:58:966] <48333> RECV OK
+DEBUG	[2023-04-17 16:07:58:966] <48333> MSG_FROM_PG:[0078000175D SHA1                   0                                      300430INIpayTest                    StdpayCARDINIpayTest20230414170351225147<?xml version="1.0" encoding="UTF-8"?><INIpay>
+<CancelInfo>
+<ResultCode>500626</ResultCode>
+<ResultMsg urlencode="1">%B1%E2+%C3%EB%BC%D2+%B0%C5%B7%A1</ResultMsg>
+<SessionKey>YBEmuvpup6uswM4nzZIU+oxTHZdzaM4Coqrjie4F39H+Iz1v0PpcmmR2pRgaKVMx
+ANnlgN1Zh7jm40w3sACkWo8Jm/vl+HGLVxgL4Q4BsWG4nFhUz/FlEdu4d3XpXXGO
+qEzIc8vjn0AzIoE5rsNwfeYVCaMnyoU355hy9NzO7JFzgQGXUtHIPg==
+</SessionKey>
+<Encrypted>i8HGuEnoeXODneKSg2NryFG2ngZPeFGwrzwz6zsbnhqo1NqIm8+ZUDQszFZWv+0Z
+hrHMDaJ05TQr87wLZrnst/rNbcjZ9fZjbgVw4WwjzFL2YabYJmyvaxluJZMmV60W
+v6agg2MNRZHNtoGgh0YX88KzV+833Gz38udKaCcV40QAnU44tHgakA6Di+FRUBnT
+ZDUiRGk9RMp47S6TEapmjqpBax6kJXoU
+</Encrypted>
+</CancelInfo>
+<ManageInfo/>
+<ReservedInfo>
+<MReserved1 urlencode="1"/>
+<MReserved2 urlencode="1"/>
+<MReserved3 urlencode="1"/>
+</ReservedInfo>
+</INIpay>
+Xp8MJfiLO2wgnHRA1PW5kkVmXlHlm5/xzAhHxztBwHzO2X+LAgKlW4HlNLGa06mQ
+FX1TQfj2mdTVsEt01v/q/c1Aq9W/sSwTDMwPTlkPkbhWDKvs6Z0IWbGs+iFePTbH
+XE5LEZ2EGXrx5rACvOjUNacjDLMxD/0+rcTVs7UQhhA=
+]
+INFO	[2023-04-17 16:07:58:966] <48333> VERIFY OK
+INFO	[2023-04-17 16:07:58:966] <48333> PARSE HEAD OK
+INFO	[2023-04-17 16:07:58:966] <48333> PARSE BODY OK
+INFO	[2023-04-17 16:07:58:968] <48333> DECRYPT OK
+DEBUG	[2023-04-17 16:07:58:968] <48333> DECRYPT MSG:[<?xml version="1.0" encoding="UTF-8"?><CancelInfo>
+<ResultCode>500626</ResultCode>
+<ResultMsg urlencode="1">%B1%E2+%C3%EB%BC%D2+%B0%C5%B7%A1</ResultMsg>
+</CancelInfo>]
+INFO	[2023-04-17 16:07:58:968] <48333> DECRYPT PARSE OK
+INFO	[2023-04-17 16:07:58:968] <48333> END cancel [500626|±‚ √Îº“ ∞≈∑°] Laptime:[0.086sec]
+INFO	[2023-04-17 16:07:58:968] <48333> ===============================================================
+INFO	[2023-04-17 16:08:09:827] <25970> START INIPHP cancel (V5047-170421)(OS:Linux3.10.0-1062.12.1.el7.x86_64,PHP:7.0.0p1)
+DEBUG	[2023-04-17 16:08:09:827] <25970> inipayhome:/yoosub92/www/pg/inipay
+DEBUG	[2023-04-17 16:08:09:827] <25970> debug:true
+DEBUG	[2023-04-17 16:08:09:827] <25970> mid:INIpayTest
+DEBUG	[2023-04-17 16:08:09:827] <25970> tid:StdpayCARDINIpayTest20230414170351225147
+DEBUG	[2023-04-17 16:08:09:827] <25970> admin:1111
+DEBUG	[2023-04-17 16:08:09:827] <25970> cancelmsg:Í¥ÄÎ¶¨ÏûêÏûÑÏùòÏ∑®ÏÜå
+DEBUG	[2023-04-17 16:08:09:827] <25970> type:cancel
+INFO	[2023-04-17 16:08:09:827] <25970> Check Field OK
+INFO	[2023-04-17 16:08:09:827] <25970> INPUT TID > StdpayCARDINIpayTest20230414170351225147
+INFO	[2023-04-17 16:08:09:827] <25970> PI PUB KEY LOAD OK []
+INFO	[2023-04-17 16:08:09:827] <25970> PG PUB KEY LOAD OK [30]
+INFO	[2023-04-17 16:08:09:827] <25970> MERCHANT PRIV KEY LOAD OK
+INFO	[2023-04-17 16:08:09:827] <25970> MERCHANT PUB KEY LOAD OK [0]
+DEBUG	[2023-04-17 16:08:09:828] <25970> MAKE ENCRYPT OK[<?xml version="1.0" encoding="UTF-8"?>
+<CancelInfo>
+	  <CancelTID>StdpayCARDINIpayTest20230414170351225147</CancelTID>
+	  <CancelMsg urlencode="1">%EA%B4%80%EB%A6%AC%EC%9E%90%EC%9E%84%EC%9D%98%EC%B7%A8%EC%86%8C</CancelMsg>
+	  <CancelReason/>
+	  <RefundAcctNum/>
+	  <RefundBankCode/>
+	  <RefundAcctName/></CancelInfo>]
+INFO	[2023-04-17 16:08:09:828] <25970> MAKE BODY OK
+INFO	[2023-04-17 16:08:09:829] <25970> SIGN OK
+INFO	[2023-04-17 16:08:09:829] <25970> MAKE HEAD OK
+DEBUG	[2023-04-17 16:08:09:829] <25970> MSG_TO_PG:[0104700175D SHA1                   0                                      300420INIpayTest                    StdpayCARDINIpayTest20230414170351225147<?xml version="1.0" encoding="UTF-8"?>
+<INIpay>
+	  <CancelInfo>
+	    <SessionKey>BhoT/8ouAdiOB4N0wBVa1cXR6UkhxlpnLtTB1eHIV8K0lnLT+d/aA9sBkx/69h0n
+a3gyPz7ZIk2uoytnITvNVZDRt2iaKbhQia2jBnq1WdbncxNHDKT4s3tG4GtSBCtb
+zalQUTgydPloyW956DkZKgPO3mkGPqWR5WYISnkSYa6bRcn8lVy9kw==
+</SessionKey>
+	    <Encrypted>vxb/B/nh1Vva78i7V5biVoMJhb45T+BVD10izdqbkZZtrRCh3rXFgbtmdDN8EgXl
+WE+mtDMPefrrDHOTkqWqf99sszsqDdsB/Bhdal12fCS1SFESeh+MVnudBNyOcYq4
+nCcc6BRBbAZH35VrhByyS+/xmUqcnxGDmu4aY2CoYgz7TALGzZnFsXLLocqBvCZB
+23vFzkKW4HyuCipCCZWb8E9dTxEqbpO/+Pn7+F/aLQfioAVRa2Zn9Sw5LiR5ziOG
+FGeVtrWqyxlHHwYHAg8PmbGJVxXHibfdLGo1r2a+RX+acxMEL5hSxn73ACWrLted
+0mW1iuYgkGbIbz2cMCW7eZ88as0QYwVyM2fezfEUSDHFyK9ZLTlPzhbbh+E38AS1
+NgO9WemTv1PUyxltBen9o9q6ZrZj6O9N+1op/CwtOd0=
+</Encrypted></CancelInfo>
+	  <ReservedInfo>
+	    <MReserved1/>
+	    <MReserved2/>
+	    <MReserved3/></ReservedInfo>
+	  <ManageInfo>
+	    <Language/>
+	    <URL/>
+	    <TXVersion>5047B170421canceLinux     PHPchkfake   3.10.0-1062.12.1.el7.x86_64PHP</TXVersion>
+	    <TXUserID/>
+	    <TXRegNum/></ManageInfo></INIpay>zDPzUxRhnO/Eu4Rju2KDGHKON+xdR3v9sP1/Nbc4GvVybVLGJMOEdAJh9M2WmxfP
+tlQKxNXKRmVY7upkTIq32bLs0CFZOAbt/4u8pmns118LfkPp8Kborw1U28PW24kX
+yf3gpHHXqoNBHrizN1V0JX3ss3MCjfWelpsnDfABnHQ=
+]
+INFO	[2023-04-17 16:08:09:829] <25970> DNS LOOKUP OK(203.238.37.3:203.238.37.3:34049) laptime:0
+INFO	[2023-04-17 16:08:09:832] <25970> SOCKET CONNECT OK
+INFO	[2023-04-17 16:08:09:832] <25970> SEND OK
+INFO	[2023-04-17 16:08:09:910] <25970> RECV OK
+DEBUG	[2023-04-17 16:08:09:911] <25970> MSG_FROM_PG:[0078000175D SHA1                   0                                      300430INIpayTest                    StdpayCARDINIpayTest20230414170351225147<?xml version="1.0" encoding="UTF-8"?><INIpay>
+<CancelInfo>
+<ResultCode>500626</ResultCode>
+<ResultMsg urlencode="1">%B1%E2+%C3%EB%BC%D2+%B0%C5%B7%A1</ResultMsg>
+<SessionKey>VKDqqvAoLDoKAPboOA5BR8vrp2KJ1yR4XPhzScWoxB5jhtDM1/S1nNA8uPUd5OSZ
+xa9jxKtWMH2/W3AFwrKjBaNqJ/wnZiKk+sf2gHUIUljRrNawq7srZyYuc5WyXrGE
+bvtCtTVGMWl0hjzw2NCSBQKDIFD+Wrpm49XPpfQ8sBRY7mQokYLeKA==
+</SessionKey>
+<Encrypted>Tzh/E7YbJ6pnpzFDXba0/57Ln9+5hsM+ypTfVSkjAmAREWxjCk2w4SMJDgL94Ubs
+0/qLMIAQetGtuYn001EAlPdcPwegqEn4/2dontH4ERsbbguIKILEhrfXL8SaCrvO
+OjJ+SpIJRnp4YKCLkpsXEgd4b2GvHNI64i/M9Gm2COmcn/1ixYEan7qOYRS9QHai
+m52A9K9RoXHPzcqTpClp5zjH2weOTSCW
+</Encrypted>
+</CancelInfo>
+<ManageInfo/>
+<ReservedInfo>
+<MReserved1 urlencode="1"/>
+<MReserved2 urlencode="1"/>
+<MReserved3 urlencode="1"/>
+</ReservedInfo>
+</INIpay>
+qTZBCATxz5ZVdLWMENExamusT51uOW85BlMgPr4KBdQHZFInZ6gTZl0A08H2tYRp
+2EiSd/WHbN6KPuvzKx+HA28i01PHjzXTyDsZxRa236AhGvsyvSvMOged1CGheOL0
+jHgkwt2DtCeDl9Yi2KM/U8LzdxLPyF8YmXzF9hbvqPI=
+]
+INFO	[2023-04-17 16:08:09:911] <25970> VERIFY OK
+INFO	[2023-04-17 16:08:09:911] <25970> PARSE HEAD OK
+INFO	[2023-04-17 16:08:09:911] <25970> PARSE BODY OK
+INFO	[2023-04-17 16:08:09:912] <25970> DECRYPT OK
+DEBUG	[2023-04-17 16:08:09:912] <25970> DECRYPT MSG:[<?xml version="1.0" encoding="UTF-8"?><CancelInfo>
+<ResultCode>500626</ResultCode>
+<ResultMsg urlencode="1">%B1%E2+%C3%EB%BC%D2+%B0%C5%B7%A1</ResultMsg>
+</CancelInfo>]
+INFO	[2023-04-17 16:08:09:912] <25970> DECRYPT PARSE OK
+INFO	[2023-04-17 16:08:09:912] <25970> END cancel [500626|±‚ √Îº“ ∞≈∑°] Laptime:[0.085sec]
+INFO	[2023-04-17 16:08:09:912] <25970> ===============================================================

@@ -1,0 +1,10 @@
+User-agent: *
+Allow:/
+User-agent: Googlebot
+User-agent: NaverBot
+User-agent: Yeti
+User-agent: Daumoa
+Disallow: /admin/campaign.php
+Disallow: /campaign_list
+Disallow: /category_id
+Disallow: /api_pcpg_wrap info_card_list_wrap _freescroll_wrap

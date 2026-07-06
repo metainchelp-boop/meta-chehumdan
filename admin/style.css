@@ -1,0 +1,229 @@
+body, td, p, input, button, textarea, select{ font-family:Tahoma,굴림; font-size:9pt; }
+body {margin:0px;  background-color:#2E2E2E; }
+img { border:0px; }
+form { margin:0px; }
+a { text-decoration:none; color:#434343; }
+
+
+
+ul {list-style: none; padding:0; margin:0 } 
+
+
+ul,ol,li,dl,dt,dd {margin:0;padding:0}
+
+/* UI Object */
+#wrap{width:100%; }
+#header{width:100%; }
+#container{_display:inline-block;width:100%; }
+#container:after{display:block;clear:both;content:''}
+.snb{float:left; width:207px;  padding:0px 0px 0px 13px;  }
+#content{margin-left:207px;  background-color:#FFFFFF; border:7px solid #0081E6; padding:20px; }
+#copyright{margin:20px 0;color:#302f2e;font-size:11px;text-align:center;font-style:normal}
+#copyright em{font-family:verdana}
+#copyright a{color:#ffffff;font-weight:bold;text-decoration:none}
+
+#countdown_dashboard {
+	height: 33px;
+	padding:16px 0px 0px 10px;
+}
+
+.dash {
+	width: 27px;
+	float: left;
+	position: relative;
+}
+
+.dash .digit {
+	font-weight: bold;
+	float: left;	
+	width: 10pt;
+	text-align: center;
+	font-family: trebuchet MS;
+    font-size: 24px;
+	color: #ffffff;
+	position: relative;
+	padding:0px;
+}
+
+
+
+
+/* UI Object */
+.star_rating {width:67px;height:10px;background:url(./img/bg_starpoint_off.gif) 0 0 no-repeat}
+.star_rating span{display:block;height:10px;background:url(./img/bg_starpoint_on.gif) 0 0 no-repeat}
+.star_rating .point{display:none}
+@media print {
+.star_rating span{display:none}
+.star_rating .point{display:block}
+}
+/* //UI Object */
+
+
+
+
+
+
+
+.loc01 {font-family:  "돋움";font-size: 11px;font-style: normal;color: #ccc;letter-spacing: -1px;}
+.loc02 {font-family:  "돋움";font-size: 11px;font-style: normal;color: #627dce;letter-spacing: -1px;}
+
+/* //table-typeA */
+.tbl_type,.tbl_type th,.tbl_type td{border:0}
+.tbl_type{width:100%;border-bottom:1px solid #dddee2;font-family:'돋움',dotum;font-size:12px;}
+.tbl_type caption{display:none}
+.tbl_type th{padding:8px 0 5px 20px;border-top:1px solid #dddee2;background:#f5f7f9;color:#666;font-weight:bold;text-align:left;vertical-align:top}
+.tbl_type td{padding:8px 5px 5px 12px;border-top:1px solid #dddee2;line-height:16px;vertical-align:top}
+.title{font-family:'돋움',dotum;font-size:12px}
+
+/* //table-typeB */
+.tbl_typeB,.tbl_typeB th,.tbl_typeB td{border:0}
+.tbl_typeB{width:100%;border-bottom:2px solid #dcdcdc;font-family:'돋움',dotum;font-size:12px;text-align:center;border-collapse:collapse}
+.tbl_typeB caption{display:none}
+.tbl_typeB tfoot{background-color:#f5f7f9;font-weight:bold}
+.tbl_typeB th{padding:7px 0 4px;border-top:2px solid #dcdcdc;border-right:1px solid #dcdcdc;border-left:1px solid #dcdcdc;background-color:#f5f7f9;color:#666;font-family:'돋움',dotum;font-size:12px;font-weight:bold;text-align:center;}
+.tbl_typeB td{padding:6px 0 4px;border:1px solid #e5e5e5;color:#4c4c4c}
+.tbl_typeB td.ranking{font-weight:bold}
+
+
+/* //table-typeC */
+.tbl_typeC,.tbl_typeC th,.tbl_typeC td{border:0}
+.tbl_typeC{border-bottom:0px solid #dddee2;font-family:'돋움',dotum;font-size:12px;}
+.tbl_typeC caption{display:none}
+.tbl_typeC th{padding:0px 0 0px 0px;border-top:0px solid #dddee2;background:#f5f7f9;color:#666;font-weight:bold;text-align:left;vertical-align:top}
+.tbl_typeC td{padding:0px 0px 0px 0px;border-top:0px solid #dddee2;line-height:16px;vertical-align:top}
+.title{font-family:'돋움',dotum;font-size:12px}
+
+/* //UI Object */
+
+
+.tex02 {
+	font-size: 12px;
+	font-style: normal;
+	font-weight:bold;
+	color: #0991e7;
+	letter-spacing: -1px;
+
+}
+.tex01 {
+	font-family:  "돋움체";
+	font-size: 11px;
+	font-style: normal;
+	color: #627dce;
+	letter-spacing: -2px;
+}
+.tex03 {
+	font-family:  "돋움체";
+	font-size: 11px;
+	font-style: normal;
+	color: #627dce;
+	letter-spacing: -1px;
+	font-weight:bold;
+}
+.tex06 {
+	font-family:  "돋움체";
+	font-size: 12px;
+	font-style: normal;
+	color: red;
+	letter-spacing: -1px;
+	font-weight:bold;
+}
+.tex04 {
+font-family:'돋움',Dotum;font-size:12px;font-weight:bold;color:green;
+}
+
+.tex05 {
+	font-family:  "돋움체";
+	font-size: 11px;
+	font-style: normal;
+	color: #666;
+	letter-spacing:0px;
+}
+/* Input Type */
+.input_rdo,.input_chk{width:13px;height:13px;vertical-align:middle}
+.input_txt{height:20px;padding:4px 0 0 6px;border:1px solid #d1d1d1;border-right:1px solid #e9e9e9;border-bottom:1px solid #e9e9e9;background:#fff;color:#666}
+.input_tatare{width:100%; overflow-x:hidden;padding:4px 0 0 6px;border:1px solid #d1d1d1;border-right:1px solid #e9e9e9;border-bottom:1px solid #e9e9e9;background:#fff;color:#666}
+
+/* UI Object */
+
+/* UI Object */
+a.btn_big{display:inline-block;padding-right:4px;background:url(http://static.naver.com/groupware/2010/bg_btn_default.gif) no-repeat 100% 0;font-family:'돋움',dotum;font-size:12px;color:#444;line-height:26px;word-spacing:-1px;text-decoration:none !important;white-space:nowrap}
+a.btn_big span,a.btn_big strong{display:block;padding:1px 8px 0 12px;background:url(http://static.naver.com/groupware/2010/bg_btn_default.gif) no-repeat}
+a.btn_sml{display:inline-block;padding-right:4px;background:url(http://static.naver.com/groupware/2010/bg_btn_default.gif) no-repeat 100% -27px;font-family:'돋움',dotum;font-size:11px;color:#444;line-height:21px;letter-spacing:-1px;word-spacing:-1px;text-decoration:none !important;white-space:nowrap}
+a.btn_sml span,a.btn_sml strong{display:block;padding:1px 4px 0 8px;background:url(http://static.naver.com/groupware/2010/bg_btn_default.gif) no-repeat 0 -27px}
+/* //UI Object */
+
+
+/* //말머리 */
+
+
+
+
+
+/* UI Object */
+/* Common */
+
+
+
+.ly_help{position:absolute;z-index:10;margin-top:6px;border:1px solid #888;background:#fff;text-align:left}
+.ly_help .clse{position:absolute;top:3px;right:4px}
+.ly_help strong{display:block;margin-bottom:-5px;padding:9px 0 0 9px;font-size:11px;color:#2c2c2c;letter-spacing:-1px}
+.ly_help p{padding:8px 0 6px 9px;font-size:11px;color:#828282;line-height:16px;letter-spacing:-1px}
+.ly_help p em{color:#268e00}
+.ly_help .edge_cen{position:absolute;top:0;left:50%;width:9px;height:6px;margin:-6px 0 0 -5px;background:url(http://static.naver.com/kin/09renewal/bg_layer_edge.gif) no-repeat 0 0;font-size:0}
+.ly_help .edge_rgt{position:absolute;top:0;right:0;width:9px;height:6px;margin-top:-6px;background:url(http://static.naver.com/kin/09renewal/bg_layer_edge.gif) no-repeat 0 0;font-size:0}
+/* //UI Object */
+
+
+
+.s_title { padding:20px 0px 5px 0px; }
+
+
+
+
+
+/* paging */
+.paging{margin-top:10px;text-align: center}
+.paging a.num_box, .paging strong {
+    border: 1px solid #D9D9D9;
+    color: #666666 !important;
+    display: inline-block;
+    height: 20px;
+    margin-top: 1px;
+    min-width: 14px;
+    padding: 3px 5px 0;
+    text-decoration: none;
+    width: auto !important;
+	margin-right:5px;
+}
+.paging a:hover, .paging strong:hover{
+	background-color:#eee; 
+}
+.paging strong,.paging strong:hover{
+	background-color: #799afe;
+    border-color: #abbefa;
+    color: #FFFFFF !important;
+    cursor: text;
+}
+.paging .paging_arrow{	
+	border: 1px solid #D9D9D9;
+	padding:6px 9px 4px 9px;
+	margin-right: 5px;
+    margin-top: 1px;
+	line-height:10px;
+}
+
+.paging span.paging_arrow .pre{
+	background-position:0 0;
+}
+.paging a .pre{
+	background-position:100% 0;
+}
+.paging span.paging_arrow .next{
+	background-position:0 100%;
+}
+.paging a .next{
+	background-position:100% 100%;
+}
+
+
+.btn_cen{text-align:center;padding:10px 0 10px 0;}

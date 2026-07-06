@@ -1,0 +1,96 @@
+INFO	[2021-05-25 15:08:05:882] <5091> START INIPHP cancel (V5047-170421)(OS:Linux3.10.0-327.10.1.el7.x86_64,PHP:7.0.7)
+DEBUG	[2021-05-25 15:08:05:882] <5091> inipayhome:/home/hosting_users/s019/www/pg/inipay
+DEBUG	[2021-05-25 15:08:05:882] <5091> debug:true
+DEBUG	[2021-05-25 15:08:05:882] <5091> mid:INIpayTest
+DEBUG	[2021-05-25 15:08:05:882] <5091> tid:StdpayISP_INIpayTest20210525152200742053
+DEBUG	[2021-05-25 15:08:05:882] <5091> admin:1111
+DEBUG	[2021-05-25 15:08:05:882] <5091> cancelmsg:Í¥ÄÎ¶¨ÏûêÏûÑÏùòÏ∑®ÏÜå
+DEBUG	[2021-05-25 15:08:05:882] <5091> type:cancel
+INFO	[2021-05-25 15:08:05:882] <5091> Check Field OK
+INFO	[2021-05-25 15:08:05:882] <5091> INPUT TID > StdpayISP_INIpayTest20210525152200742053
+INFO	[2021-05-25 15:08:05:882] <5091> PI PUB KEY LOAD OK []
+INFO	[2021-05-25 15:08:05:883] <5091> PG PUB KEY LOAD OK [30]
+INFO	[2021-05-25 15:08:05:883] <5091> MERCHANT PRIV KEY LOAD OK
+INFO	[2021-05-25 15:08:05:883] <5091> MERCHANT PUB KEY LOAD OK [0]
+DEBUG	[2021-05-25 15:08:05:884] <5091> MAKE ENCRYPT OK[<?xml version="1.0" encoding="UTF-8"?>
+<CancelInfo>
+	  <CancelTID>StdpayISP_INIpayTest20210525152200742053</CancelTID>
+	  <CancelMsg urlencode="1">%EA%B4%80%EB%A6%AC%EC%9E%90%EC%9E%84%EC%9D%98%EC%B7%A8%EC%86%8C</CancelMsg>
+	  <CancelReason/>
+	  <RefundAcctNum/>
+	  <RefundBankCode/>
+	  <RefundAcctName/></CancelInfo>]
+INFO	[2021-05-25 15:08:05:884] <5091> MAKE BODY OK
+INFO	[2021-05-25 15:08:05:885] <5091> SIGN OK
+INFO	[2021-05-25 15:08:05:885] <5091> MAKE HEAD OK
+DEBUG	[2021-05-25 15:08:05:885] <5091> MSG_TO_PG:[0104700175D SHA1                   0                                      300420INIpayTest                    StdpayISP_INIpayTest20210525152200742053<?xml version="1.0" encoding="UTF-8"?>
+<INIpay>
+	  <CancelInfo>
+	    <SessionKey>3s0ulFU3hixXgEIEpxfupDPDWPJilWRfAABUYaRWToZ8eMPjymm5xqXH6ECDdr3W
+HUKVSvBeP+/aEtARoNFqCT3fEUn+SnEvX0ChUPtby6OCKEzeZGFcczxonQShXlEs
+pizca+onJFfP1OnPd/mzKe0yNIkBR4SxsddgWQz3OvPMbsiBI+I90A==
+</SessionKey>
+	    <Encrypted>hlt40iDV99Ow2YX6k2370xRbI5z+qJt8H9RcVcCK2iRjxwCEAq8CZ+so+NDOsbrm
+LrNte1jWFBHCDs56qIng3LjHsetGWH0OvM17U9GZOPWYYk1HZMU0+C6m6DdOwcZJ
+Ls45Qs41002ssiSGQdhKWBVCRKahfaibbFlLaD7Q44h8ENCQSByTPnkvldUN7ykE
+ZAFqRIH3p+DfStARWrvWwrUW0Jna2THNmWf6cczh7JTeAXR/vH5cEWNnzt5JMt6L
+nwGps8MadmBHMGBEHpuNb4jR1vq3Lh7DGtwKO7iVi4XwXRUK/sHngMxA8b9OJsq6
+R2bDmxXHb5veMYhLVWjgTFAKYJw2x38IqyRO59Yi5gm+UNBvbK7q/vG+glt26SJh
+zMLnN44FndGNBElfq2SiXExKNWO0H9KCexxn8A36aqw=
+</Encrypted></CancelInfo>
+	  <ReservedInfo>
+	    <MReserved1/>
+	    <MReserved2/>
+	    <MReserved3/></ReservedInfo>
+	  <ManageInfo>
+	    <Language/>
+	    <URL/>
+	    <TXVersion>5047B170421canceLinux     PHPchkfake   3.10.0-327.10.1.el7.x86_64PHP:</TXVersion>
+	    <TXUserID/>
+	    <TXRegNum/></ManageInfo></INIpay>ohvZMKNwAQyNopMMmPyilc3ohd2dFvEltwx3/cHv65xQuOk0qLthlkDvkaTJjr1r
+AHjLoXyxkun8Q4MV2ockjxb49FLmXpc78OzwWr4CGqVX1xmYYFWFj048YAM/JJGz
+wl7SY2FZbyumBQ+N20PyN1hv/i/tn2zRA6YEF+bv/Mk=
+]
+INFO	[2021-05-25 15:08:05:885] <5091> DNS LOOKUP OK(203.238.37.3:203.238.37.3:34049) laptime:0
+INFO	[2021-05-25 15:08:05:887] <5091> SOCKET CONNECT OK
+INFO	[2021-05-25 15:08:05:887] <5091> SEND OK
+INFO	[2021-05-25 15:08:06:148] <5091> RECV OK
+DEBUG	[2021-05-25 15:08:06:148] <5091> MSG_FROM_PG:[0086100175D SHA1                   0                                      300430INIpayTest                    StdpayISP_INIpayTest20210525152200742053<?xml version="1.0" encoding="UTF-8"?><INIpay>
+<CancelInfo>
+<ResultCode>170000</ResultCode>
+<ResultMsg urlencode="1">%C1%A4%BB%F3%BF%CF%B7%E1</ResultMsg>
+<SessionKey>SNy5wTEo9jD9Ha4kyw9P5gyh8hz+oQYqvGF4Vve4gl0FLFbzH52v1Dp0Sb3yTehK
+ICHRdNdQF8IACFrNw5Le71PrXCzOUeljMJ3qcWXKyfJ2rP5cac8/GKWI+vjo7XMl
+5xBLICcup9jBuL4AIZ4t8mPPnIGkY/YfHrAu4uucFnO8XlcELyZXXQ==
+</SessionKey>
+<Encrypted>eFTG9QVZgWSGxrFyLANX3I0gNy90uZF8r7FgY24DnZWPcbv/gwUAeFC6pYPxEdyt
+PL0HkCJZC056Yz4EATpaXKHPv2A74HFMLv7+SanuAfoAC5bySSZI5yHaS08lO33I
+0Umi2vREyBoJK6qQLB+AQ24qz59lm6PpHnOySy4mQAnvCCFrwezOtb88yG6EbBNh
+lsePDeIiAtPOW38fbf/eixLpdrwEJRu327G1sYq/UN+RbZcF4K2BUdPiCTtT/c9x
+7jjYEXpPfdaIQO38IzUtVv4r53mmbHK7NtjoOZrQd9iXCPOUfZ/U4Q==
+</Encrypted>
+</CancelInfo>
+<ManageInfo/>
+<ReservedInfo>
+<MReserved1 urlencode="1"/>
+<MReserved2 urlencode="1"/>
+<MReserved3 urlencode="1"/>
+</ReservedInfo>
+</INIpay>
+KNJg1T77mE5Oi6MJch6U7n1gTK0avPiiadAO7pmMb62XBZM7/oRG/MEyosQm8tLq
+rBld23F2TG7YWhPZC6rBWGfkP+K2kbT8r9lbeMR3XuqQ92jKyFm7iho8G4tyBSHv
+iKu6HFAZ+QI5MOoNVfIyUxy/ILSN9GkN40QQ+NuBV8U=
+]
+INFO	[2021-05-25 15:08:06:148] <5091> VERIFY OK
+INFO	[2021-05-25 15:08:06:148] <5091> PARSE HEAD OK
+INFO	[2021-05-25 15:08:06:148] <5091> PARSE BODY OK
+INFO	[2021-05-25 15:08:06:149] <5091> DECRYPT OK
+DEBUG	[2021-05-25 15:08:06:149] <5091> DECRYPT MSG:[<?xml version="1.0" encoding="UTF-8"?><CancelInfo>
+<CancelDate>20210525</CancelDate>
+<CancelTime>152514</CancelTime>
+<ResultCode>170000</ResultCode>
+<ResultMsg urlencode="1">%C1%A4%BB%F3%BF%CF%B7%E1</ResultMsg>
+</CancelInfo>]
+INFO	[2021-05-25 15:08:06:149] <5091> DECRYPT PARSE OK
+INFO	[2021-05-25 15:08:06:149] <5091> END cancel ¡§ªÛøœ∑· Laptime:[0.267sec]
+INFO	[2021-05-25 15:08:06:149] <5091> ===============================================================

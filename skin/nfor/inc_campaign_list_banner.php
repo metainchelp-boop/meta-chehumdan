@@ -1,0 +1,42 @@
+<div class="mHome-visual"  >
+	<div class="swiper-container swiper-container-d">
+		<ul class="mSlider-home swiper-wrapper">
+		<?php
+		for($i=0; $i<count($return[banner]["campaign_list_".substr($category_id,0,4)]["list"]); $i++){
+			$banner = $return[banner]["campaign_list_".substr($category_id,0,4)]["list"][$i];
+		?>
+			<li class="swiper-slide"><div ><a href="<?=$banner[bn_href]?>" target="<?=$banner[bn_target]?>"><img src="<?=$banner[bn_img_over]?>" alt=""></a></div></li>
+		<? } ?>
+		</ul>
+		<div class="swiper-pagination-d"></div>
+	</div>
+	</div>
+
+<style>
+.mHome-visual {overflow:hidden;position:relative;width:100%; background-color:#fff;}
+.mHome-visual .swiper-wrapper  {display:-webkit-box;display:-moz-box;display:-ms-flexbox;}
+.mHome-visual ul li {overflow:hidden;position:relative;background:#fff;font-size:0;line-height:0;}
+.mHome-visual ul li img:focus {border:2px solid #a5c7fe;}
+.swiper-container-d { margin:1px 1px; }
+.swiper-container-d .swiper-slide img { width:100%; }
+.swiper-pagination-bullet-active { background:#4bc019; }
+#mContents:before {
+    display: none;
+}
+</style>
+
+
+<SCRIPT LANGUAGE="JavaScript">
+<!--
+$(function(){
+
+	var swiperD = new Swiper('.swiper-container-d', {
+		loop: true,			
+		autoplay:1000,
+		paginationClickable: true,
+		pagination: '.swiper-pagination-d'
+	});
+
+});
+//-->
+</SCRIPT>
