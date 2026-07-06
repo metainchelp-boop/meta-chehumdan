@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>메타체험단 광고주 집계 API — 설계 시안</title>
+<style>
+  :root{--blue:#3b82f6;--blue-d:#2563eb;--blue-bg:#eff6ff;--ink:#1e293b;--sub:#64748b;--mut:#94a3b8;--line:#e2e8f0;--green:#16a34a;--green-bg:#dcfce7;--amber:#d97706;--amber-bg:#fef3c7;--bg:#f8fafc;--teal:#0d9488;--teal-bg:#f0fdfa}
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:'Pretendard Variable',Pretendard,-apple-system,system-ui,'Apple SD Gothic Neo','Malgun Gothic',sans-serif;background:var(--bg);color:var(--ink);font-size:14px;line-height:1.65;padding:0 0 60px}
+  .draft{background:#0f172a;color:#cbd5e1;font-size:12.5px;padding:9px 20px;text-align:center}
+  .draft b{color:#fbbf24}
+  .wrap{max-width:940px;margin:0 auto;padding:22px 20px}
+  .card{background:#fff;border:1px solid var(--line);border-radius:14px;box-shadow:0 1px 3px rgba(15,23,42,.05);padding:20px 24px;margin-bottom:16px}
+  h1{font-size:20px;font-weight:800;color:#0f172a}
+  .sub{color:var(--sub);font-size:12.5px;margin-top:4px}
+  h2{font-size:15px;font-weight:800;color:var(--blue-d);margin-bottom:12px;display:flex;align-items:center;gap:8px}
+  .tag{display:inline-block;background:var(--blue);color:#fff;font-size:11px;font-weight:800;border-radius:6px;padding:2px 8px}
+  .tag.get{background:var(--green)} .tag.new{background:var(--teal)}
+  /* 흐름도 */
+  .flow{display:flex;align-items:stretch;gap:0;flex-wrap:wrap}
+  .fb{flex:1;min-width:150px;background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:12px 14px}
+  .fb h4{font-size:12.5px;font-weight:800;margin-bottom:5px;display:flex;align-items:center;gap:5px}
+  .fb p{font-size:11.5px;color:var(--sub)}
+  .fb.new{background:var(--teal-bg);border-color:#99f6e4}
+  .fb.new h4{color:var(--teal)}
+  .arrow{display:flex;align-items:center;justify-content:center;color:var(--mut);font-size:20px;padding:0 6px;flex-shrink:0}
+  @media(max-width:720px){.flow{flex-direction:column}.arrow{transform:rotate(90deg);padding:4px 0}}
+  /* 코드블록 */
+  pre{background:#0f172a;color:#e2e8f0;border-radius:10px;padding:14px 16px;font-size:12px;font-family:Consolas,'D2Coding',monospace;overflow-x:auto;line-height:1.55;margin-top:8px}
+  pre .k{color:#7dd3fc} pre .s{color:#86efac} pre .c{color:#64748b} pre .n{color:#fbbf24}
+  .endpoint{background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:8px 12px;font-family:Consolas,monospace;font-size:12.5px;font-weight:700;color:var(--ink);margin-bottom:6px;word-break:break-all}
+  .desc{font-size:12.5px;color:var(--sub);margin:6px 0 4px}
+  table{width:100%;border-collapse:collapse;font-size:12px;margin-top:8px}
+  th{background:#f8fafc;color:var(--sub);text-align:left;padding:7px 10px;border-bottom:2px solid var(--line);font-size:11px;white-space:nowrap}
+  td{padding:7px 10px;border-bottom:1px solid #f1f5f9;vertical-align:top}
+  td code{background:#f1f5f9;border-radius:4px;padding:1px 5px;font-size:11.5px;color:var(--teal)}
+  td b{color:#0f172a}
+  /* 카드 미리보기 */
+  .prev{border:2px dashed #bfdbfe;border-radius:12px;padding:16px;background:linear-gradient(180deg,#fbfdff,#fff)}
+  .kpis{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+  .kpi{flex:1;min-width:92px;background:#fff;border:1px solid var(--line);border-radius:9px;padding:9px 11px;text-align:center}
+  .kpi b{display:block;font-size:17px;font-weight:800}
+  .kpi b small{font-size:10px;color:var(--mut)}
+  .kpi span{font-size:10.5px;color:var(--sub);font-weight:700}
+  .kpi.hl b{color:var(--blue-d)} .kpi.up b{color:var(--green)}
+  table.rt{width:100%;border-collapse:collapse;font-size:11.5px}
+  table.rt th{background:#f1f5f9;text-align:right;padding:6px 9px;font-size:11px}
+  table.rt th:first-child,table.rt td:first-child{text-align:left}
+  table.rt td{text-align:right;padding:6px 9px;font-variant-numeric:tabular-nums;border-bottom:1px solid #f1f5f9}
+  table.rt tr:last-child td{border-top:2px solid var(--line);font-weight:800;background:var(--blue-bg)}
+  .note{font-size:11.5px;color:var(--mut);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:9px 13px;margin-top:10px}
+  .note b{color:var(--blue-d)}
+  ul.sc{list-style:none;margin-top:6px}
+  ul.sc li{padding:6px 0;border-bottom:1px dashed #eef2f6;font-size:12.5px;display:flex;gap:8px}
+  ul.sc li:last-child{border:none}
+  .yes{color:var(--green);font-weight:800;flex-shrink:0} .later{color:var(--amber);font-weight:800;flex-shrink:0}
+  .src-badge{display:inline-block;background:#dcfce7;color:#15803d;font-size:10px;font-weight:800;border-radius:5px;padding:1px 7px;margin-left:6px}
+</style>
+</head>
+<body>
+<div class="draft">🔍 <b>검토용 설계 시안</b> — 메타체험단 광고주 집계 API + 전산 공유링크 연동 · 실제 사이트 컬럼(cp_supply_no·rv_step·rv_url) 기반 · 데이터는 예시</div>
+<div class="wrap">
+
+  <div class="card">
+    <h1>🎁 메타체험단 광고주 집계 API — 설계 시안</h1>
+    <div class="sub">목표: 진행중 공유링크의 체험단 카드에 <b>광고주별 전 캠페인 누적 성과</b>를 자동으로 불러오기. 실제 사이트 구조 분석 기반 (2026-07-06)</div>
+  </div>
+
+  <!-- 흐름도 -->
+  <div class="card">
+    <h2>① 데이터 흐름</h2>
+    <div class="flow">
+      <div class="fb">
+        <h4>🗄 메타체험단 DB</h4>
+        <p>nfor_member(광고주)<br>nfor_campaign(캠페인)<br>nfor_review(리뷰·퍼널)</p>
+      </div>
+      <div class="arrow">→</div>
+      <div class="fb new">
+        <h4>🆕 집계 API</h4>
+        <p><b>mc_advertiser_api.php</b><br>광고주별 전 캠페인 합산<br>토큰 인증 JSON</p>
+      </div>
+      <div class="arrow">→</div>
+      <div class="fb">
+        <h4>🏢 전산 BE</h4>
+        <p>MetacrewAdvertiserClient<br>광고주 매핑(supply_no)<br>대시보드 API에 병합</p>
+      </div>
+      <div class="arrow">→</div>
+      <div class="fb">
+        <h4>📱 공유링크 카드</h4>
+        <p>체험단 카드<br>누적 총계 + 회차별 표<br>리뷰 링크 모음</p>
+      </div>
+    </div>
+    <div class="note">🔑 기존 <b>mc_cal_api.php(캘린더)·mc_point_bank_api.php(포인트출금)</b>와 <b>완전히 같은 토큰 방식</b>으로 신규 API 1개만 추가. 기존 사이트 기능은 건드리지 않고 파일만 더합니다.</div>
+  </div>
+
+  <!-- API 명세 -->
+  <div class="card">
+    <h2>② API 명세 (2개 모드)</h2>
+
+    <div style="margin-bottom:18px">
+      <div class="endpoint"><span class="tag get">GET</span> /mc_advertiser_api.php?token=●●●&amp;mode=advertisers</div>
+      <div class="desc"><b>광고주 목록</b> — 전산 매핑 화면(연결하기 드롭다운)에서 사용. 광고주 = <code>mb_admin='1' AND mb_id LIKE 'adv_%'</code></div>
+      <pre><span class="c">// 응답</span>
+{ <span class="k">"ok"</span>:true, <span class="k">"count"</span>:12, <span class="k">"syncedAt"</span>:<span class="s">"2026-07-06 15:20:11"</span>,
+  <span class="k">"advertisers"</span>:[
+    { <span class="k">"supply_no"</span>:<span class="n">1042</span>, <span class="k">"company"</span>:<span class="s">"그린리프 홈리빙"</span>, <span class="k">"manager"</span>:<span class="s">"김대표"</span>,
+      <span class="k">"campaign_count"</span>:<span class="n">3</span>, <span class="k">"joined"</span>:<span class="s">"2026-03-02"</span> },
+    ...
+  ]}</pre>
+    </div>
+
+    <div>
+      <div class="endpoint"><span class="tag get">GET</span> /mc_advertiser_api.php?token=●●●&amp;supply_no=1042</div>
+      <div class="desc"><b>광고주별 누적 집계</b> — 그 광고주의 <b>전 캠페인 합산 + 회차별 상세 + 리뷰 링크</b>. 공유링크 체험단 카드가 이걸 불러옴</div>
+      <pre><span class="c">// 응답</span>
+{ <span class="k">"ok"</span>:true, <span class="k">"supply_no"</span>:<span class="n">1042</span>, <span class="k">"company"</span>:<span class="s">"그린리프 홈리빙"</span>, <span class="k">"syncedAt"</span>:<span class="s">"2026-07-06 15:20"</span>,
+  <span class="c">// ▼ 전 캠페인 누적 총계 (rv_step 재계산 — 부정확한 카운터 컬럼 대신)</span>
+  <span class="k">"total"</span>:{ <span class="k">"campaigns"</span>:<span class="n">3</span>, <span class="k">"recruit"</span>:<span class="n">60</span>, <span class="k">"apply"</span>:<span class="n">402</span>, <span class="k">"select"</span>:<span class="n">60</span>,
+           <span class="k">"review"</span>:<span class="n">54</span>, <span class="k">"click"</span>:<span class="n">128400</span> },
+  <span class="c">// ▼ 회차별 (캠페인 시작일 순 = 회차)</span>
+  <span class="k">"campaigns"</span>:[
+    { <span class="k">"round"</span>:<span class="n">3</span>, <span class="k">"cp_id"</span>:<span class="s">"gr2506"</span>, <span class="k">"subject"</span>:<span class="s">"여름 신상 주방매트"</span>, <span class="k">"status"</span>:<span class="s">"리뷰등록"</span>,
+      <span class="k">"apply_end"</span>:<span class="s">"2026-06-22"</span>, <span class="k">"review_end"</span>:<span class="s">"2026-07-04"</span>,
+      <span class="k">"recruit"</span>:<span class="n">20</span>, <span class="k">"apply"</span>:<span class="n">143</span>, <span class="k">"select"</span>:<span class="n">20</span>, <span class="k">"review"</span>:<span class="n">14</span>, <span class="k">"click"</span>:<span class="n">31200</span> },
+    ...
+  ],
+  <span class="c">// ▼ 등록 리뷰 전체 링크 (rv_url, rv_delete='0')</span>
+  <span class="k">"reviews"</span>:[
+    { <span class="k">"cp_id"</span>:<span class="s">"gr2506"</span>, <span class="k">"url"</span>:<span class="s">"https://blog.naver.com/.../223..."</span>, <span class="k">"media"</span>:<span class="s">"네이버블로그"</span>,
+      <span class="k">"date"</span>:<span class="s">"2026-07-02"</span> }, ...
+  ]}</pre>
+    </div>
+    <div class="note">⚙️ 신청/선정/리뷰 실적은 <b>nfor_review의 rv_step으로 재계산</b>합니다 (사이트 주석: "캠페인 카운터가 부정확해 rv_step 기준으로 교체"). 이 방식을 API도 그대로 따라 정확한 숫자를 보장합니다.</div>
+  </div>
+
+  <!-- 필드 매핑 -->
+  <div class="card">
+    <h2>③ 필드 매핑 (API → 실제 DB 컬럼)</h2>
+    <table>
+      <tr><th>API 필드</th><th>메타체험단 원천</th><th>산출 방식</th></tr>
+      <tr><td><code>supply_no</code></td><td><code>nfor_member.mb_no</code></td><td>광고주 회원번호 (mb_id adv_ 접두)</td></tr>
+      <tr><td><code>company</code></td><td><code>mb_cp_name</code></td><td>업체명</td></tr>
+      <tr><td>회차 캠페인</td><td><code>nfor_campaign.cp_supply_no</code></td><td>= 광고주 mb_no 인 캠페인 전체</td></tr>
+      <tr><td><code>recruit</code>·<code>click</code></td><td><code>cp_recruit</code>·<code>cp_click</code></td><td>캠페인 값 그대로 · 누적은 SUM</td></tr>
+      <tr><td><code>apply/select/review</code></td><td><code>nfor_review.rv_step</code></td><td>신청=전체 · 선정=step2+3+4 · 리뷰=step3+4 (rv_delete='0')</td></tr>
+      <tr><td>일정(마감·발표)</td><td><code>cp_edatetime</code> 등 6종</td><td>캠페인 일정 필드</td></tr>
+      <tr><td><code>reviews[].url</code></td><td><code>nfor_review.rv_url</code></td><td>등록된 리뷰 URL 목록</td></tr>
+      <tr><td><code>media</code></td><td><code>rv_in_media</code></td><td>유입 매체(네이버블로그 등)</td></tr>
+    </table>
+  </div>
+
+  <!-- 카드 미리보기 -->
+  <div class="card">
+    <h2>④ 이 데이터가 채우는 체험단 카드 <span class="src-badge">⚡ 메타체험단 자동연동</span></h2>
+    <div class="prev">
+      <div style="font-weight:800;font-size:14px;margin-bottom:10px">🎁 체험단 마케팅 — 그린리프 홈리빙 (누적 3회차)</div>
+      <div class="kpis">
+        <div class="kpi hl"><b>3<small>/12회차</small></b><span>진행 회차</span></div>
+        <div class="kpi"><b>60</b><span>누적 모집</span></div>
+        <div class="kpi"><b>402</b><span>누적 신청</span></div>
+        <div class="kpi"><b>60</b><span>누적 선정</span></div>
+        <div class="kpi up"><b>54</b><span>누적 등록 리뷰</span></div>
+        <div class="kpi"><b>128,400</b><span>누적 조회수</span></div>
+      </div>
+      <table class="rt">
+        <tr><th>회차</th><th>캠페인</th><th>모집</th><th>신청</th><th>선정</th><th>리뷰</th><th>조회수</th></tr>
+        <tr><td>3회차</td><td style="text-align:left">여름 신상 주방매트</td><td>20</td><td>143</td><td>20</td><td>14</td><td>31,200</td></tr>
+        <tr><td>2회차</td><td style="text-align:left">원목 선반 체험</td><td>20</td><td>128</td><td>20</td><td>20</td><td>52,800</td></tr>
+        <tr><td>1회차</td><td style="text-align:left">접이식 테이블</td><td>20</td><td>131</td><td>20</td><td>20</td><td>44,400</td></tr>
+        <tr><td>합계</td><td style="text-align:left">—</td><td>60</td><td>402</td><td>60</td><td>54</td><td>128,400</td></tr>
+      </table>
+      <div class="note" style="margin-top:10px">📎 등록 리뷰 54건은 <b>링크 목록</b>으로 함께 제공 → 광고주가 자기 리뷰를 바로 열람. 유입 매체별 분포도 표시 가능.</div>
+    </div>
+  </div>
+
+  <!-- 구현 범위 -->
+  <div class="card">
+    <h2>⑤ 구현 범위 (v1 / 추후)</h2>
+    <ul class="sc">
+      <li><span class="yes">v1 ✓</span><span>신규 <b>mc_advertiser_api.php</b> (기존 토큰 API 복제, 사이트 기능 불변)</span></li>
+      <li><span class="yes">v1 ✓</span><span>광고주 목록 + 광고주별 <b>누적 총계·회차별 표·리뷰 링크</b></span></li>
+      <li><span class="yes">v1 ✓</span><span>전산: 광고주 ↔ supply_no <b>1클릭 매핑</b> + 대시보드 API 병합 + 체험단 카드 표시</span></li>
+      <li><span class="later">추후 ○</span><span><b>유입·노출 트래픽 세부</b>(주 단위 분할 테이블 nfor_traffic_YYYY_WW) — 캠페인마다 주 테이블을 찾아야 해 무거움. v1은 조회수(cp_click)·퍼널까지, 트래픽 세부는 다음 단계</span></li>
+      <li><span class="later">추후 ○</span><span>광고주 단위 <b>공개 정적 보고서</b>(기존 campaign_report_share 방식을 업체 단위로 확장 — 선택)</span></li>
+    </ul>
+    <div class="note">🔐 <b>토큰</b>: 기존 API처럼 서버에만 있는 상수로 인증(전산↔메타체험단 서버 간 통신). 광고주에게 노출되는 건 전산 공유링크 토큰이고, 이 API 토큰은 외부에 안 나갑니다.</div>
+  </div>
+
+  <div class="card" style="background:var(--teal-bg);border-color:#99f6e4">
+    <h2 style="color:var(--teal)">확정해 주시면 이렇게 진행합니다</h2>
+    <div style="font-size:13px;color:#0f766e">① 이 API 명세 확정 → ② 메타체험단에 <b>mc_advertiser_api.php</b> + 전산에 <b>MetacrewAdvertiserClient</b> 구현 → ③ 진행중 공유링크 설정에 <b>메타체험단 연동(1클릭 매핑)</b> 추가 → ④ 체험단 카드에 자동 표시 → ⑤ 배포(메타체험단=FTP, 전산=저녁). <b>고칠 부분(지표·회차 정의·리뷰 표시 방식 등)을 말씀해 주시면 시안에 반영</b>합니다.</div>
+  </div>
+
+</div>
+</body>
+</html>

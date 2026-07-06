@@ -34,3 +34,11 @@
 ## 6. 동시작업 — 확인 완료 (2026-07-06)
 - 운영자 확인: **메타체험단은 운영자 지시로만 개발됨(단독)**. 2026-06월 광고주/입점업체 선택칸·공유 보고서 작업도 본 작업의 연장선. → 동시작업 충돌 우려 없음, 이 브랜치에서 계속 진행.
 - 다음 단계: 광고주(입점업체)별 **다중 캠페인 누적 집계** + 전산 연동 **집계 토큰 API** 를 시안으로 설계 → 운영자 확정 → 구현(기존 기능 불변·추가만).
+
+## 7. 광고주별 집계 API 설계 시안 (2026-07-06, 운영자 검토 대기)
+정밀 코드 분석(Explore) 근거로 설계. 시안: `docs/advertiser-aggregate-api-design.html`.
+- **신규 파일 1개**: `mc_advertiser_api.php` — 기존 `mc_cal_api.php` 골격 복제(`include_once "path.php"` + `$MC_ADV_TOKEN` GET 토큰 검증 + `json_encode(...,JSON_UNESCAPED_UNICODE)`). 기존 사이트 기능 불변.
+- **2모드**: `?mode=advertisers`(광고주 목록 — 매핑 드롭다운용, `mb_admin='1' AND mb_id LIKE 'adv_%'`) / `?supply_no=N`(광고주별 누적: total + campaigns[] 회차별 + reviews[] 링크).
+- **집계 규칙**: 캠페인 롤업 = `nfor_campaign.cp_supply_no = mb_no`. 신청/선정/리뷰 = `nfor_review.rv_step` 재계산(신청=전체, 선정=step2+3+4, 리뷰=step3+4, `rv_delete='0'`) — 부정확한 카운터 컬럼 미사용. 조회수=`cp_click` SUM. 리뷰URL=`rv_url`. 회차=캠페인 시작일 순번.
+- **v1 제외**: 트래픽 세부(nfor_traffic_YYYY_WW 주 분할 → 캠페인 루프 필요, 무거움)는 다음 단계. v1은 조회수·퍼널까지.
+- 전산측: `MetacrewAdvertiserClient`(기존 Metacrew*Client 동형) + 진행중 공유링크 설정에 1클릭 매핑 + ClientPortal 대시보드 JSON에 병합.
