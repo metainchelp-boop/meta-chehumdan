@@ -13,3 +13,4 @@ nfor_phpmyadmin/
 .DS_Store
 **/.DS_Store
 Thumbs.db
+mc_api_token.php

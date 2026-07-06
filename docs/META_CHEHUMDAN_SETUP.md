@@ -42,3 +42,20 @@
 - **집계 규칙**: 캠페인 롤업 = `nfor_campaign.cp_supply_no = mb_no`. 신청/선정/리뷰 = `nfor_review.rv_step` 재계산(신청=전체, 선정=step2+3+4, 리뷰=step3+4, `rv_delete='0'`) — 부정확한 카운터 컬럼 미사용. 조회수=`cp_click` SUM. 리뷰URL=`rv_url`. 회차=캠페인 시작일 순번.
 - **v1 제외**: 트래픽 세부(nfor_traffic_YYYY_WW 주 분할 → 캠페인 루프 필요, 무거움)는 다음 단계. v1은 조회수·퍼널까지.
 - 전산측: `MetacrewAdvertiserClient`(기존 Metacrew*Client 동형) + 진행중 공유링크 설정에 1클릭 매핑 + ClientPortal 대시보드 JSON에 병합.
+
+## 8. 광고주 집계 API 구현 (2026-07-06) — 운영자 결정 반영
+파일: **mc_advertiser_api.php** (신규, 기존 mc_cal_api.php 패턴). 운영자 확정 옵션: 회차만 표기 / 리뷰 링크 전체 / 메타체험단 전 캠페인 / 유입·노출 1차 포함.
+- mode=advertisers: 광고주 목록(mb_admin='1' AND mb_id LIKE 'adv_%', q 검색). campaign_count 포함.
+- supply_no=N: total(누적) + campaigns[](회차별, rv_step 퍼널 + cp_click + 방문) + media[](유입매체 분류) + reviews[](rv_url 전체).
+- 트래픽: 캠페인별 nfor_traffic_YYYY_WW(주차) 존재 확인(SHOW TABLES) 후 집계 → 없으면 skip(오류 방지).
+- **토큰**: 하드코딩 안 함. 서버 전용 `mc_api_token.php`(.gitignore 등재)에서 `return '토큰';` 로드. 미설정 시 403.
+- 검증: `php -l` 문법 통과.
+
+### ⚠️ 추가 발견 — 기존 API 토큰도 노출됨
+`mc_cal_api.php`(MC_CAL_TOKEN), `mc_point_bank_api.php`(MC_PB_TOKEN)에 토큰이 **하드코딩된 채 저장소에 올라감**. 신규 API는 파일 분리 방식으로 안전하나, 기존 2개는 여전히 노출. → 별도 작업으로 이 둘도 mc_api_token 방식으로 이전 + 토큰 교체 권장(전산 application.yml의 metacrew.calendar.token 동기 변경 필요).
+
+### 배포(운영자)
+1. 서버 /www 에 `mc_advertiser_api.php` 업로드(FTP).
+2. 서버 /www 에 `mc_api_token.php` 생성: `<?php return '<랜덤토큰>';` (전달한 제안 토큰 사용 가능, 저장소엔 없음).
+3. 전산 application.yml에 `metacrew.advertiser.url/token` 추가(같은 토큰) — 전산 BE 배선 시.
+4. 확인: 브라우저에서 `/mc_advertiser_api.php?token=<토큰>&mode=advertisers` → 광고주 목록 JSON.
