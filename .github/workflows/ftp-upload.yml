@@ -183,7 +183,13 @@ jobs:
             echo ""
             echo '```'
           } >> $GITHUB_STEP_SUMMARY
-          if grep -qiE "fatal error|parse error|Warning:|Notice:" /tmp/r.txt; then
+          # ⚠️ 카페24는 해외 IP 에 자바스크립트 검증 페이지(cupid.js)를 먼저 물린다.
+          #    그게 HTTP 200 으로 오기 때문에, 코드만 보고 「정상」이라 하면 거짓 판정이 된다.
+          #    실측 2026-08-21: 깃허브(미국) 러너에서 본문이 통째로 검증 페이지였다.
+          #    ⇒ 검증 페이지면 「확인 못 함」이라고 말한다. 국내에서 봐야 한다.
+          if grep -qi "cupid.js\|toNumbers(\|document.cookie" /tmp/r.txt; then
+            echo "::warning::카페24 해외 IP 검증 페이지가 돌아왔습니다 — 깃허브(미국)에서는 확인할 수 없습니다. 국내에서 접속해 확인해야 합니다."
+          elif grep -qiE "fatal error|parse error" /tmp/r.txt; then
             echo "::error::PHP 오류 문구가 보입니다 — 백업 파일로 즉시 되돌리세요."
           elif [ "$CODE" = "200" ]; then
             echo "✅ 파일이 정상 실행됩니다 (인증 거절 응답은 정상)"
