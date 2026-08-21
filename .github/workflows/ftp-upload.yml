@@ -69,6 +69,12 @@ jobs:
               echo "   열지 못함 (curl $RC): $(echo "$OUT" | tail -1)"
             fi
           }
+          # ⚠️ curl 은 ftp://호스트/경로 를 「로그인 위치 기준 상대경로」로 본다.
+          #    슬래시를 하나 더 붙인 ftp://호스트//경로 라야 절대경로다.
+          #    로그인 위치 자체가 깨져 있으면 상대경로는 전부 실패하므로 둘 다 본다.
+          probe "ftp://$HOST//"                          "절대경로 / 안에 있는 것들"
+          probe "ftp://$HOST//www/"                      "절대경로 /www 안에 있는 것들"
+          probe "ftp://$HOST//home/hosting_users/$USER/" "카페24 계정 폴더 안에 있는 것들"
           probe "ftp://$HOST/"          "로그인 직후 위치에 있는 것들"
           probe "ftp://$HOST/www/"      "/www 안에 있는 것들"
           probe "ftp://$HOST${RAW%/}/"  "등록된 폴더 경로 안에 있는 것들"
