@@ -1,0 +1,16 @@
+# 민감정보 — 절대 커밋 금지 (실제 값은 서버에만)
+config.php
+*.p8
+*.pem
+*.key
+mc_share_key.php
+editor/imageUpload/config.php
+
+# 벤더 phpMyAdmin (라이브 서버 보안상 저장소 미포함)
+nfor_phpmyadmin/
+
+# OS/편집기 부산물
+.DS_Store
+**/.DS_Store
+Thumbs.db
+mc_api_token.php
