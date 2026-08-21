@@ -61,11 +61,24 @@ jobs:
             echo "── $2"
             RC=0
             OUT=$(curl -sS --ftp-ssl --insecure --connect-timeout 20 -u "$USER:$PASS" -l "$1" 2>&1) || RC=$?
-            if [ $RC -eq 0 ]; then echo "$OUT" | head -25; else echo "   열지 못함 (curl $RC): $(echo "$OUT" | tail -1)"; fi
+            if [ $RC -eq 0 ]; then
+              N=$(echo "$OUT" | grep -c . || true)
+              echo "   ${N}개"
+              echo "$OUT" | head -25
+            else
+              echo "   열지 못함 (curl $RC): $(echo "$OUT" | tail -1)"
+            fi
           }
           probe "ftp://$HOST/"          "로그인 직후 위치에 있는 것들"
           probe "ftp://$HOST/www/"      "/www 안에 있는 것들"
           probe "ftp://$HOST${RAW%/}/"  "등록된 폴더 경로 안에 있는 것들"
+
+          # ⚠️ 목록이 비어 나오는지, 애초에 못 들어가는지를 가르려면 서버가 실제로 뭐라고
+          #    답했는지를 봐야 한다. 서버 응답 코드는 비밀이 아니다 — 다만 비밀번호를 보내는
+          #    줄(PASS)은 반드시 걸러낸다.
+          echo "── 서버와 주고받은 대화 (비밀번호 줄 제외)"
+          curl -sS -v --ftp-ssl --insecure --connect-timeout 20 -u "$USER:$PASS" -l "ftp://$HOST/" 2>&1 \
+            | grep -E '^[*<>]' | grep -viE 'pass|authoriz|credential' | head -45 || true
 
       - name: 서버의 현재 파일과 비교 (덮어쓰기 전 확인)
         env:
