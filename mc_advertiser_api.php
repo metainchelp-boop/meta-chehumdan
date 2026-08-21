@@ -15,6 +15,7 @@
  *   - 유입/노출 통계 = 조회수(cp_click 합) + 방문(nfor_traffic_주차) + 유입매체 분류.
  */
 include_once "path.php";
+include_once dirname(__FILE__)."/mc_share.php";   // mc_share_token() — 공개 보고서 주소 계산(2026-08-21)
 
 // ───────── 토큰 인증 (서버 전용 파일 mc_api_token.php 에서 로드 — 저장소 미포함) ─────────
 $MC_ADV_TOKEN = "";
@@ -169,6 +170,31 @@ foreach($camps as $c){
     elseif($c['cp_edatetime'] && $c['cp_edatetime'] < $today) $status="선정중";
     else $status="모집중";
 
+    /* 공개 보고서 존재 확인 — 관리자가 「공유」를 누른 회차만 파일이 있다(2026-08-21) */
+    $rp_url = ""; $rp_at = "";
+    $rp_dir = dirname(__FILE__)."/report";
+    if(function_exists('mc_share_token')){
+        $rp_path = $rp_dir."/cr_".$c['cp_id']."_".mc_share_token($c['cp_id']).".html";
+        if(!is_file($rp_path)) $rp_path = "";
+    } else {
+        $rp_path = "";
+    }
+    /* ⚠️ 옛 보고서는 토큰이 짧다(2026-06-18 이전 10자 → 이후 24자). 정확 매칭만 하면
+     *    그 전에 공유한 회차가 통째로 「보고서 없음」이 된다(실측: 기존 10건 중 9건).
+     *    그래서 캠페인 번호로 한 번 더 찾는다 — 어차피 관리자가 공유해 공개해 둔 그 파일이다.
+     *    같은 캠페인 파일은 재발행 시 하나만 남으므로 여럿이면 가장 최근 것을 쓴다. */
+    if($rp_path === ""){
+        $rp_cands = glob($rp_dir."/cr_".$c['cp_id']."_*.html");
+        if($rp_cands){
+            usort($rp_cands, function($a,$b){ return filemtime($b) - filemtime($a); });
+            $rp_path = $rp_cands[0];
+        }
+    }
+    if($rp_path !== "" && is_file($rp_path)){
+        $rp_url = $BASE."/report/".basename($rp_path);
+        $rp_at  = date("Y-m-d", filemtime($rp_path));
+    }
+
     $campaigns_out[] = array(
         "round"      => $round,
         "cp_id"      => $c['cp_id'],
@@ -182,6 +208,19 @@ foreach($camps as $c){
         "apply_end"  => substr((string)$c['cp_edatetime'],0,10),
         "review_end" => substr((string)$c['cp_contents_edatetime'],0,10),
         "report_url" => $BASE."/admin/campaign_report.php?cp_id=".$c['cp_id'],
+
+        /* ── 광고주 공유용 결과 보고서 (2026-08-21 신설) ────────────────────────
+         * 위 report_url 은 관리자 로그인이 필요한 화면이라 광고주가 못 연다.
+         * 아래 두 칸은 관리자가 「공유」를 눌러 만들어 둔 로그인 불필요 정적 보고서다.
+         *
+         * ⚠️ 파일이 실제로 있을 때만 주소를 준다 — 주소만 주고 파일이 없으면
+         *    광고주가 눌렀을 때 「찾을 수 없음」이 뜬다. 없으면 빈 문자열이고,
+         *    전산은 값이 있는 회차만 화면에 그린다.
+         * ⚠️ 토큰은 캠페인 번호를 서버 키로 해싱한 고정값이라 매번 같은 주소가 나온다
+         *    (이미 만들어 둔 보고서의 주소가 바뀌지 않는다).
+         */
+        "report_public_url" => $rp_url,
+        "report_at"         => $rp_at,
     );
 
     $total['recruit'] += (int)$c['cp_recruit'];
