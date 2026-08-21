@@ -162,6 +162,35 @@ jobs:
             echo "✅ $p 업로드 완료" >> $GITHUB_STEP_SUMMARY
           done
 
+
+      # 올린 뒤(또는 사람이 직접 올린 뒤) 라이브가 깨지지 않았는지 확인한다.
+      # 토큰은 쓰지 않는다 — 인증 거절 JSON 이 돌아오면 파일이 정상 실행된다는 뜻이고,
+      # PHP 오류 문구가 보이면 즉시 되돌려야 한다는 뜻이다.
+      - name: 라이브 응답 확인 (토큰 없이 — 깨졌는지만 본다)
+        continue-on-error: true
+        run: |
+          U="https://meta-chehumdan.com/mc_advertiser_api.php"
+          CODE=$(curl -sS -o /tmp/r.txt -w "%{http_code}" --max-time 25 "$U") || CODE=000
+          echo "HTTP $CODE"
+          echo "--- 응답 앞부분 ---"
+          head -c 400 /tmp/r.txt; echo
+          {
+            echo ""
+            echo "### 라이브 응답 확인"
+            echo "- HTTP \`$CODE\`"
+            echo '```'
+            head -c 400 /tmp/r.txt
+            echo ""
+            echo '```'
+          } >> $GITHUB_STEP_SUMMARY
+          if grep -qiE "fatal error|parse error|Warning:|Notice:" /tmp/r.txt; then
+            echo "::error::PHP 오류 문구가 보입니다 — 백업 파일로 즉시 되돌리세요."
+          elif [ "$CODE" = "200" ]; then
+            echo "✅ 파일이 정상 실행됩니다 (인증 거절 응답은 정상)"
+          else
+            echo "::warning::예상 밖 응답입니다 (HTTP $CODE). 사이트를 직접 열어 확인해 주세요."
+          fi
+
       - name: 미리보기만 하고 끝난 경우 안내
         if: ${{ inputs.confirm != 'UPLOAD' }}
         run: |
