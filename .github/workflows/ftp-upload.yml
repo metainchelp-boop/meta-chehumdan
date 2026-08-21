@@ -57,13 +57,31 @@ jobs:
           echo "## 서버 현재 파일 vs 올릴 파일" >> $GITHUB_STEP_SUMMARY
           echo "| 파일 | 서버 | 올릴 것 |" >> $GITHUB_STEP_SUMMARY
           echo "|---|---|---|" >> $GITHUB_STEP_SUMMARY
+          # ⚠️ 접속 실패와 「파일 없음」을 반드시 갈라야 한다. 둘 다 빈 값이 되는데,
+          #    접속 실패를 「신규 파일」로 읽으면 서버에 있는 파일을 덮어쓰면서도
+          #    새로 만드는 줄 알게 된다 — 가장 위험한 오독이다.
+          FAILED=0
           for f in "${F[@]}"; do
             p="$(echo "$f" | xargs)"; [ -z "$p" ] && continue
-            # 서버 파일 크기 조회 — 없으면 「신규」
-            SZ=$(curl -sS --ftp-ssl --insecure -u "$USER:$PASS" -I "ftp://$HOST$DIR/$p" 2>/dev/null \
-                 | grep -i '^Content-Length:' | tr -d '\r' | awk '{print $2}') || true
-            echo "| \`$p\` | ${SZ:-없음(신규)} bytes | $(stat -c%s "$p") bytes |" >> $GITHUB_STEP_SUMMARY
+            LOCAL=$(stat -c%s "$p")
+            OUT=$(curl -sS --ftp-ssl --insecure -u "$USER:$PASS" -I "ftp://$HOST$DIR/$p" 2>&1); RC=$?
+            if [ $RC -eq 0 ]; then
+              SZ=$(echo "$OUT" | grep -i '^Content-Length:' | tr -d '\r' | awk '{print $2}')
+              SERVER="${SZ:-0} bytes"
+            elif [ $RC -eq 19 ] || echo "$OUT" | grep -qi "550\|not exist\|No such file"; then
+              SERVER="없음 (서버에 그 파일이 없습니다 — 신규)"
+            else
+              SERVER="⚠️ 확인 실패 (curl $RC) — 접속이 안 됐습니다"
+              FAILED=1
+            fi
+            ROW="| \`$p\` | $SERVER | $LOCAL bytes |"
+            echo "$ROW" >> $GITHUB_STEP_SUMMARY
+            echo "$ROW"          # 로그에도 남긴다 — 요약만 쓰면 나중에 확인할 방법이 없다
           done
+          if [ $FAILED -eq 1 ]; then
+            echo "::error::서버 파일을 확인하지 못했습니다(접속 실패). 크기를 모르는 채로 올리면 안 되므로 여기서 멈춥니다."
+            exit 1
+          fi
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "⚠️ **서버 크기가 올릴 것보다 크면 라이브가 더 최신일 수 있습니다** — 그 경우 올리지 마시고 먼저 확인하세요(2026-07-24 실사고)." >> $GITHUB_STEP_SUMMARY
 
