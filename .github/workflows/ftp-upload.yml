@@ -1,0 +1,93 @@
+name: 라이브 서버 파일 업로드 (수동·지정 파일만)
+
+# ⚠️ 이 저장소는 「라이브 운영 중인 사이트」다. 자동 배포를 두지 않는 이유가 있다.
+#   - 2026-07-24 실사고: 저장소 사본이 라이브보다 옛 버전이었는데 그걸 올려 기능이 축소됐다.
+#     되돌리는 데 사람 손이 들었다. 그래서 이 워크플로우는 아래 세 가지를 지킨다.
+#
+#   ① 자동으로 안 돈다 — push 로 트리거되지 않고 사람이 실행할 때만 돈다.
+#   ② 지정한 파일만 올린다 — 저장소 전체를 밀지 않는다. 파일 목록을 손으로 적어야 한다.
+#   ③ 기본이 미리보기다 — 실제 업로드는 confirm 에 UPLOAD 라고 적어야 실행된다.
+#      그 전까지는 「서버의 현재 파일 vs 올릴 파일」 크기·시각만 비교해 보여준다.
+
+on:
+  workflow_dispatch:
+    inputs:
+      files:
+        description: '올릴 파일 (저장소 기준 경로, 여러 개면 쉼표로 구분). 예: mc_advertiser_api.php'
+        required: true
+      confirm:
+        description: '실제로 올리려면 UPLOAD 라고 정확히 입력 (비우면 미리보기만)'
+        required: false
+        default: ''
+
+concurrency: chehumdan-ftp-upload
+
+jobs:
+  upload:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: 올릴 파일이 저장소에 있는지 확인
+        run: |
+          set -e
+          IFS=',' read -ra F <<< "${{ inputs.files }}"
+          for f in "${F[@]}"; do
+            p="$(echo "$f" | xargs)"
+            [ -z "$p" ] && continue
+            case "$p" in /*|*..*) echo "::error::경로가 올바르지 않습니다: $p"; exit 1;; esac
+            if [ ! -f "$p" ]; then echo "::error::저장소에 없는 파일입니다: $p"; exit 1; fi
+            echo "✓ $p ($(stat -c%s "$p") bytes)"
+          done
+
+      - name: 서버의 현재 파일과 비교 (덮어쓰기 전 확인)
+        env:
+          HOST: ${{ secrets.CHEHUMDAN_FTP_HOST }}
+          USER: ${{ secrets.CHEHUMDAN_FTP_USER }}
+          PASS: ${{ secrets.CHEHUMDAN_FTP_PASS }}
+          REMOTE_DIR: ${{ secrets.CHEHUMDAN_FTP_DIR }}
+        run: |
+          set -e
+          if [ -z "$HOST" ]; then
+            echo "::error::FTP 접속 정보(시크릿)가 없습니다. 저장소 Settings ▸ Secrets 에 CHEHUMDAN_FTP_HOST/USER/PASS/DIR 를 등록해 주세요."
+            exit 1
+          fi
+          DIR="${REMOTE_DIR:-/www}"
+          IFS=',' read -ra F <<< "${{ inputs.files }}"
+          echo "## 서버 현재 파일 vs 올릴 파일" >> $GITHUB_STEP_SUMMARY
+          echo "| 파일 | 서버 | 올릴 것 |" >> $GITHUB_STEP_SUMMARY
+          echo "|---|---|---|" >> $GITHUB_STEP_SUMMARY
+          for f in "${F[@]}"; do
+            p="$(echo "$f" | xargs)"; [ -z "$p" ] && continue
+            # 서버 파일 크기 조회 — 없으면 「신규」
+            SZ=$(curl -sS --ftp-ssl --insecure -u "$USER:$PASS" -I "ftp://$HOST$DIR/$p" 2>/dev/null \
+                 | grep -i '^Content-Length:' | tr -d '\r' | awk '{print $2}') || true
+            echo "| \`$p\` | ${SZ:-없음(신규)} bytes | $(stat -c%s "$p") bytes |" >> $GITHUB_STEP_SUMMARY
+          done
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "⚠️ **서버 크기가 올릴 것보다 크면 라이브가 더 최신일 수 있습니다** — 그 경우 올리지 마시고 먼저 확인하세요(2026-07-24 실사고)." >> $GITHUB_STEP_SUMMARY
+
+      - name: 업로드 (confirm=UPLOAD 일 때만)
+        if: ${{ inputs.confirm == 'UPLOAD' }}
+        env:
+          HOST: ${{ secrets.CHEHUMDAN_FTP_HOST }}
+          USER: ${{ secrets.CHEHUMDAN_FTP_USER }}
+          PASS: ${{ secrets.CHEHUMDAN_FTP_PASS }}
+          REMOTE_DIR: ${{ secrets.CHEHUMDAN_FTP_DIR }}
+        run: |
+          set -e
+          DIR="${REMOTE_DIR:-/www}"
+          IFS=',' read -ra F <<< "${{ inputs.files }}"
+          for f in "${F[@]}"; do
+            p="$(echo "$f" | xargs)"; [ -z "$p" ] && continue
+            echo "올리는 중: $p"
+            curl -sS --ftp-ssl --insecure --ftp-create-dirs \
+                 -u "$USER:$PASS" -T "$p" "ftp://$HOST$DIR/$p"
+            echo "✅ $p 업로드 완료" >> $GITHUB_STEP_SUMMARY
+          done
+
+      - name: 미리보기만 하고 끝난 경우 안내
+        if: ${{ inputs.confirm != 'UPLOAD' }}
+        run: |
+          echo "### 미리보기만 했습니다 (아무 것도 안 올렸습니다)" >> $GITHUB_STEP_SUMMARY
+          echo "위 비교표를 확인하신 뒤, 실제로 올리려면 confirm 칸에 \`UPLOAD\` 를 넣고 다시 실행하세요." >> $GITHUB_STEP_SUMMARY
