@@ -40,6 +40,33 @@ jobs:
             echo "✓ $p ($(stat -c%s "$p") bytes)"
           done
 
+      # ⚠️ 폴더 경로(시크릿)는 로그에서 ***로 가려져, 틀려도 무엇이 틀렸는지 안 보인다.
+      #    그래서 값을 찍는 대신 「서버에 실제로 무엇이 있는지」를 찍는다 — 이건 비밀이 아니다.
+      #    이 단계는 실패해도 멈추지 않는다(진단이 목적).
+      - name: 접속 진단 — 서버 폴더 구조 확인
+        continue-on-error: true
+        env:
+          HOST: ${{ secrets.CHEHUMDAN_FTP_HOST }}
+          USER: ${{ secrets.CHEHUMDAN_FTP_USER }}
+          PASS: ${{ secrets.CHEHUMDAN_FTP_PASS }}
+          REMOTE_DIR: ${{ secrets.CHEHUMDAN_FTP_DIR }}
+        run: |
+          RAW="${REMOTE_DIR:-/www}"
+          # 값 자체는 가려지니 「모양」만 알린다 — 앞뒤 슬래시가 대부분의 원인이다.
+          FIRST="${RAW:0:1}"; LAST="${RAW: -1}"
+          echo "등록된 폴더 경로: 길이 ${#RAW}자 · 첫 글자 '$FIRST' · 끝 글자 '$LAST'"
+          if [ "$LAST" = "/" ]; then echo "::warning::끝에 / 가 붙어 있습니다 — ftp://호스트//파일 이 되어 거부될 수 있습니다 (/www 처럼 끝 슬래시 없이)."; fi
+          if [ "$FIRST" != "/" ]; then echo "::warning::첫 글자가 / 가 아닙니다 — /www 처럼 슬래시로 시작해야 합니다."; fi
+          probe() {
+            echo "── $2"
+            RC=0
+            OUT=$(curl -sS --ftp-ssl --insecure --connect-timeout 20 -u "$USER:$PASS" -l "$1" 2>&1) || RC=$?
+            if [ $RC -eq 0 ]; then echo "$OUT" | head -25; else echo "   열지 못함 (curl $RC): $(echo "$OUT" | tail -1)"; fi
+          }
+          probe "ftp://$HOST/"          "로그인 직후 위치에 있는 것들"
+          probe "ftp://$HOST/www/"      "/www 안에 있는 것들"
+          probe "ftp://$HOST${RAW%/}/"  "등록된 폴더 경로 안에 있는 것들"
+
       - name: 서버의 현재 파일과 비교 (덮어쓰기 전 확인)
         env:
           HOST: ${{ secrets.CHEHUMDAN_FTP_HOST }}
@@ -52,7 +79,7 @@ jobs:
             echo "::error::FTP 접속 정보(시크릿)가 없습니다. 저장소 Settings ▸ Secrets 에 CHEHUMDAN_FTP_HOST/USER/PASS/DIR 를 등록해 주세요."
             exit 1
           fi
-          DIR="${REMOTE_DIR:-/www}"
+          DIR="${REMOTE_DIR:-/www}"; DIR="${DIR%/}"   # 끝 슬래시는 잘라낸다 (ftp://호스트//파일 방지)
           IFS=',' read -ra F <<< "${{ inputs.files }}"
           echo "## 서버 현재 파일 vs 올릴 파일" >> $GITHUB_STEP_SUMMARY
           echo "| 파일 | 서버 | 올릴 것 |" >> $GITHUB_STEP_SUMMARY
@@ -106,7 +133,7 @@ jobs:
           REMOTE_DIR: ${{ secrets.CHEHUMDAN_FTP_DIR }}
         run: |
           set -e
-          DIR="${REMOTE_DIR:-/www}"
+          DIR="${REMOTE_DIR:-/www}"; DIR="${DIR%/}"   # 끝 슬래시는 잘라낸다 (ftp://호스트//파일 방지)
           IFS=',' read -ra F <<< "${{ inputs.files }}"
           for f in "${F[@]}"; do
             p="$(echo "$f" | xargs)"; [ -z "$p" ] && continue
