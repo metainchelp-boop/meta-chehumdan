@@ -176,6 +176,7 @@ function review_confirm($rv_id){
 
 	campaign_count($data[rv_cp_id]);
 	nfor_send("review_confirm",$data[rv_mb_email],$data[rv_mb_hp],$data[rv_mb_no],$data[rv_id],"review_best_list.php");
+	mc_campaign_report_touch_after_review($data[rv_cp_id]);
 }
 
 function review_post_cancel($rv_id){
@@ -192,6 +193,18 @@ function review_post_cancel($rv_id){
 	}
 
 	campaign_count($data[rv_cp_id]); // 등록완료 취소 시 캠페인 카운터(선정/등록완료 수) 갱신
+	mc_campaign_report_touch_after_review($data[rv_cp_id]);
+}
+
+function mc_campaign_report_touch_after_review($cp_id){
+	$lib = dirname(__FILE__)."/mc_campaign_report.lib.php";
+	if(!is_file($lib)) return;
+	include_once $lib;
+	if(!function_exists('mc_campaign_report_enqueue')) return;
+	$result = mc_campaign_report_enqueue($cp_id);
+	if(is_array($result) && empty($result['ok'])){
+		@error_log("[metacrew-report] cp_id=".(int)$cp_id." ".$result['error']);
+	}
 }
 
 function insert_point($mb_no, $point, $memo, $type="", $pt_timestamp=""){

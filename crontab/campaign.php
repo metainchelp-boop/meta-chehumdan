@@ -36,6 +36,20 @@ keyword_update();
 // 선정 후 N영업일 미신고자 구매 독촉 알림톡 (요청:양근형 2026-06-30) — 템플릿코드 미설정 시 무발송(안전)
 include_once "buy_remind.php";
 
+// 리뷰 승인·취소로 예약된 갱신을 먼저 처리한 뒤, 결과일이 지난 누락 회차를 소급 생성한다.
+// 전체 시도량을 한 번에 20건으로 제한하고, 한 캠페인 실패가 다음 캠페인을 막지 않는다.
+include_once $nfor[path]."/lib/mc_campaign_report.lib.php";
+$mc_report_queue = mc_campaign_report_process_queue(10);
+$mc_report_remaining = max(0, 20 - (int)$mc_report_queue['attempted']);
+$mc_report_batch = $mc_report_remaining > 0
+	? mc_campaign_report_generate_missing($mc_report_remaining)
+	: array("ok"=>true, "attempted"=>0, "generated"=>0, "failed"=>0, "errors"=>array());
+$mc_report_failed = (int)$mc_report_queue['failed'] + (int)$mc_report_batch['failed'];
+if($mc_report_failed > 0){
+	$mc_report_errors = array_merge((array)$mc_report_queue['errors'], (array)$mc_report_batch['errors']);
+	@error_log("[metacrew-report] batch failed=".$mc_report_failed." ".json_encode($mc_report_errors, JSON_UNESCAPED_UNICODE));
+}
+
 exit;
 
 // 휴면회원 자동삭제(개인정보유효기간 설정일까지만 보관) - 적용이후 복구불가
