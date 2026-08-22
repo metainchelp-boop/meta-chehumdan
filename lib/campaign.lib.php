@@ -200,8 +200,8 @@ function mc_campaign_report_touch_after_review($cp_id){
 	$lib = dirname(__FILE__)."/mc_campaign_report.lib.php";
 	if(!is_file($lib)) return;
 	include_once $lib;
-	if(!function_exists('mc_campaign_report_refresh_after_review')) return;
-	$result = mc_campaign_report_refresh_after_review($cp_id);
+	if(!function_exists('mc_campaign_report_enqueue')) return;
+	$result = mc_campaign_report_enqueue($cp_id);
 	if(is_array($result) && empty($result['ok'])){
 		@error_log("[metacrew-report] cp_id=".(int)$cp_id." ".$result['error']);
 	}

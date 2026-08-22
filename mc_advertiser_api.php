@@ -127,6 +127,12 @@ function mc_adv_media_label($ref){
     if(strpos($ref,'meta-chehumdan.com')!==false) return '자사사이트';
     return '기타';
 }
+function mc_adv_public_url($url){
+    $url = trim((string)$url);
+    if($url === '' || !filter_var($url, FILTER_VALIDATE_URL)) return '';
+    $scheme = strtolower((string)parse_url($url, PHP_URL_SCHEME));
+    return ($scheme === 'http' || $scheme === 'https') ? $url : '';
+}
 $tableExists = array();
 function mc_adv_table_ok($t){
     global $tableExists;
@@ -191,8 +197,11 @@ foreach($camps as $c){
         }
     }
     if($rp_path !== "" && is_file($rp_path)){
-        $rp_url = $BASE."/report/".basename($rp_path);
-        $rp_at  = date("Y-m-d", filemtime($rp_path));
+        $candidate_url = mc_adv_public_url($BASE."/report/".basename($rp_path));
+        if($candidate_url !== ""){
+            $rp_url = $candidate_url;
+            $rp_at  = date("Y-m-d", filemtime($rp_path));
+        }
     }
 
     $campaigns_out[] = array(
@@ -207,11 +216,8 @@ foreach($camps as $c){
         "visit"      => $vt,
         "apply_end"  => substr((string)$c['cp_edatetime'],0,10),
         "review_end" => substr((string)$c['cp_contents_edatetime'],0,10),
-        "report_url" => $BASE."/admin/campaign_report.php?cp_id=".$c['cp_id'],
-
         /* ── 광고주 공유용 결과 보고서 (2026-08-21 신설) ────────────────────────
-         * 위 report_url 은 관리자 로그인이 필요한 화면이라 광고주가 못 연다.
-         * 아래 두 칸은 자동 생성된 로그인 불필요 정적 보고서다. 관리자는 같은 주소로 재생성할 수 있다.
+         * 아래 두 칸은 자동 생성된 로그인 불필요 정적 보고서다.
          *
          * ⚠️ 파일이 실제로 있을 때만 주소를 준다 — 주소만 주고 파일이 없으면
          *    광고주가 눌렀을 때 「찾을 수 없음」이 뜬다. 없으면 빈 문자열이고,
@@ -240,9 +246,11 @@ if(count($cpIds)){
         where rv_cp_id in ($inIds) and rv_delete='0' and rv_url<>'' and rv_step in ('3','4')
         order by rv_reg_datetime desc limit 1000");
     while($r = sql_fetch_array($rres)){
+        $review_url = mc_adv_public_url($r['rv_url']);
+        if($review_url === '') continue;
         $reviews_out[] = array(
             "cp_id" => $r['rv_cp_id'],
-            "url"   => $r['rv_url'],
+            "url"   => $review_url,
             "media" => (string)$r['rv_in_media'],
             "date"  => substr((string)$r['rv_reg_datetime'],0,10),
         );
@@ -258,7 +266,6 @@ echo json_encode(array(
     "ok"        => true,
     "supply_no" => (int)$supply_no,
     "company"   => (string)$adv['mb_cp_name'],
-    "manager"   => (string)$adv['mb_name'],
     "syncedAt"  => date("Y-m-d H:i:s"),
     "total"     => $total,
     "campaigns" => $campaigns_out,

@@ -7,12 +7,30 @@ function mc_campaign_report_result($ok, $error="", $extra=array()){
 	return array_merge(array("ok"=>(bool)$ok, "error"=>(string)$error), $extra);
 }
 
+function mc_campaign_report_query($sql){
+	$result = sql_query($sql, false);
+	if($result === false) throw new Exception("보고서 집계 DB 조회에 실패했습니다");
+	return $result;
+}
+
+function mc_campaign_report_fetch($sql){
+	$result = mc_campaign_report_query($sql);
+	return sql_fetch_array($result);
+}
+
 function mc_campaign_report_mask_name($n){
 	$n = trim($n);
 	$len = mb_strlen($n, 'UTF-8');
 	if($len <= 1) return $n ? $n : "비공개";
 	if($len == 2) return mb_substr($n,0,1,'UTF-8')."○";
 	return mb_substr($n,0,1,'UTF-8').str_repeat("○",$len-2).mb_substr($n,$len-1,1,'UTF-8');
+}
+
+function mc_campaign_report_http_url($url){
+	$url = trim((string)$url);
+	if($url === "" || !filter_var($url, FILTER_VALIDATE_URL)) return "";
+	$scheme = strtolower((string)parse_url($url, PHP_URL_SCHEME));
+	return ($scheme === "http" || $scheme === "https") ? $url : "";
 }
 
 function mc_campaign_report_base_url(){
@@ -25,11 +43,29 @@ function mc_campaign_report_base_url(){
 	return $scheme."://".$host;
 }
 
-function mc_campaign_report_path($cp_id){
+function mc_campaign_report_canonical_path($cp_id){
 	$cp_id = preg_replace('/[^0-9]/', '', $cp_id);
 	if($cp_id === "" || !function_exists('mc_share_token')) return "";
 	$webroot = dirname(dirname(__FILE__));
 	return $webroot."/report/cr_".$cp_id."_".mc_share_token($cp_id).".html";
+}
+
+function mc_campaign_report_existing_paths($cp_id){
+	$cp_id = preg_replace('/[^0-9]/', '', $cp_id);
+	if($cp_id === "") return array();
+	$dir = dirname(dirname(__FILE__))."/report";
+	$paths = glob($dir."/cr_".$cp_id."_*.html");
+	if(!is_array($paths)) return array();
+	$paths = array_values(array_filter($paths, 'is_file'));
+	usort($paths, function($a, $b){ return @filemtime($b) - @filemtime($a); });
+	return $paths;
+}
+
+function mc_campaign_report_path($cp_id){
+	$canonical = mc_campaign_report_canonical_path($cp_id);
+	if($canonical !== "" && is_file($canonical)) return $canonical;
+	$existing = mc_campaign_report_existing_paths($cp_id);
+	return !empty($existing) ? $existing[0] : $canonical;
 }
 
 function mc_campaign_report_exists($cp_id){
@@ -37,79 +73,127 @@ function mc_campaign_report_exists($cp_id){
 	return $path !== "" && is_file($path);
 }
 
+function mc_campaign_report_write_atomic($path, $html){
+	$dir = dirname($path);
+	$tmp = @tempnam($dir, ".mc_report_");
+	if($tmp === false) return mc_campaign_report_result(false, "임시 보고서 파일을 만들 수 없습니다");
+	$written = @file_put_contents($tmp, $html, LOCK_EX);
+	if($written === false || $written < strlen($html)){
+		@unlink($tmp);
+		return mc_campaign_report_result(false, "보고서 파일을 끝까지 저장하지 못했습니다");
+	}
+	@chmod($tmp, 0644);
+	if(!@rename($tmp, $path)){
+		@unlink($tmp);
+		return mc_campaign_report_result(false, "새 보고서 파일로 교체하지 못했습니다");
+	}
+	return mc_campaign_report_result(true);
+}
+
+function mc_campaign_report_metatech_rows($cp_id){
+	$cp_id = preg_replace('/[^0-9]/', '', $cp_id);
+	if(!$cp_id) return array();
+	if(!mc_campaign_report_fetch("show tables like 'nfor_metatech'")) return array();
+	$has_users = (bool)mc_campaign_report_fetch("show tables like 'nfor_metatech_user'");
+	$rows = array();
+	$query = mc_campaign_report_query("select * from nfor_metatech where m_cp_id='$cp_id' order by idx desc");
+	while($mission = sql_fetch_array($query)){
+		$count = array("c"=>0, "done"=>0, "wait"=>0);
+		if($has_users){
+			$idx = (int)$mission['idx'];
+			$count = mc_campaign_report_fetch("select count(*) as c, "
+				."sum(case when status='1' then 1 else 0 end) as done, "
+				."sum(case when status='0' then 1 else 0 end) as wait "
+				."from nfor_metatech_user where connect_idx='$idx'");
+		}
+		$mission['join_cnt'] = (int)$count['c'];
+		$mission['done_cnt'] = (int)$count['done'];
+		$mission['wait_cnt'] = (int)$count['wait'];
+		$rows[] = $mission;
+	}
+	return $rows;
+}
+
 function mc_campaign_report_generate($cp_id, $include_metatech=false){
-	global $nfor, $admin;
+	try {
+		return mc_campaign_report_generate_inner($cp_id, $include_metatech);
+	} catch(Exception $e) {
+		return mc_campaign_report_result(false, $e->getMessage(), array("cp_id"=>(int)$cp_id));
+	}
+}
+
+function mc_campaign_report_generate_inner($cp_id, $include_metatech=false){
+	global $admin;
 	$cp_id = preg_replace('/[^0-9]/', '', $cp_id);
 	if(!$cp_id) return mc_campaign_report_result(false, "캠페인 번호가 없습니다");
 
-	$write = sql_fetch("select * from nfor_campaign where cp_id='$cp_id'");
+	$write = mc_campaign_report_fetch("select * from nfor_campaign where cp_id='$cp_id'");
 	if(!$write[cp_id]) return mc_campaign_report_result(false, "캠페인을 찾을 수 없습니다");
 	$chart_path = dirname(dirname(__FILE__))."/js/Chart.min.js";
 	if(!is_file($chart_path) || !is_readable($chart_path)) return mc_campaign_report_result(false, "Chart.min.js 파일을 읽을 수 없습니다");
 
 // ── 메타테크 참여 현황 (선택 포함) 2026-06-16 ──
-include_once $nfor[path]."/lib/z_function.lib.php";
 $inc_mt  = (bool)$include_metatech;
-$mt_rows = metatech_report_by_cp($cp_id);
+$mt_rows = mc_campaign_report_metatech_rows($cp_id);
 $mt_has  = !empty($mt_rows);
 
 $sex_data=$age_data=$area_data=$level_data=$device_data=$time_data=$dayw_data=$month_data=$day_data=$blogid_data=array("text"=>array(),"cnt"=>array());
 
 /* ===== 집계 데이터 (campaign_report.php 와 동일 로직) ===== */
 // 성별
-$que = sql_query("select rv_mb_sex, count(*) as cnt from nfor_review where rv_cp_id='$write[cp_id]' and rv_delete='0' group by rv_mb_sex");
+$que = mc_campaign_report_query("select rv_mb_sex, count(*) as cnt from nfor_review where rv_cp_id='$write[cp_id]' and rv_delete='0' group by rv_mb_sex");
 while($data = sql_fetch_array($que)){
 	if($data[rv_mb_sex]=="M"){ $text="남자"; } elseif($data[rv_mb_sex]=="F"){ $text="여자"; } else{ $text="미입력"; }
 	$sex_data[text][]=$text; $sex_data[cnt][]=$data[cnt];
 }
 // 연령별
-$que = sql_query("select rv_mb_age, count(*) as cnt from nfor_review where rv_cp_id='$write[cp_id]' and rv_delete='0' group by rv_mb_age");
+$que = mc_campaign_report_query("select rv_mb_age, count(*) as cnt from nfor_review where rv_cp_id='$write[cp_id]' and rv_delete='0' group by rv_mb_age");
 while($data = sql_fetch_array($que)){
 	$age_data[text][]=$data[rv_mb_age]?$data[rv_mb_age]."대":"미입력"; $age_data[cnt][]=$data[cnt];
 }
 // 지역별
-$que = sql_query("select rv_mb_area, count(*) as cnt from nfor_review where rv_cp_id='$write[cp_id]' and rv_delete='0' group by rv_mb_area");
+$que = mc_campaign_report_query("select rv_mb_area, count(*) as cnt from nfor_review where rv_cp_id='$write[cp_id]' and rv_delete='0' group by rv_mb_area");
 while($data = sql_fetch_array($que)){
 	$area_data[text][]=$data[rv_mb_area]?$data[rv_mb_area]:"미입력"; $area_data[cnt][]=$data[cnt];
 }
 // 등급명 맵 + 레벨별
 $admin[mb_level][""]="미입력";
-$que = sql_query("select * from nfor_level where 1 order by lv_rank asc");
+$que = mc_campaign_report_query("select * from nfor_level where 1 order by lv_rank asc");
 while($row = sql_fetch_array($que)){ $admin[mb_level][$row[lv_id]]=$row[lv_name]; }
-$que = sql_query("select rv_mb_level, count(*) as cnt from nfor_review where rv_cp_id='$write[cp_id]' and rv_delete='0' group by rv_mb_level");
+$que = mc_campaign_report_query("select rv_mb_level, count(*) as cnt from nfor_review where rv_cp_id='$write[cp_id]' and rv_delete='0' group by rv_mb_level");
 while($data = sql_fetch_array($que)){ $level_data[text][]=$admin[mb_level][$data[rv_mb_level]]; $level_data[cnt][]=$data[cnt]; }
 
 // 트래픽 테이블
 $traffic_y_w = date("Y_W",strtotime($write[cp_insert_datetime]));
 $traffic_table = "nfor_traffic_".$traffic_y_w;
-$traffic_exists = sql_fetch("show tables like '".addslashes($traffic_table)."'");
+$traffic_exists = mc_campaign_report_fetch("show tables like '".addslashes($traffic_table)."'");
 if($traffic_exists){
 	// 디바이스
-	$que = sql_query("select tr_device, count(*) as tot_device_count from {$traffic_table} where tr_cp_id = '$write[cp_id]' group by tr_device;");
+	$que = mc_campaign_report_query("select tr_device, count(*) as tot_device_count from {$traffic_table} where tr_cp_id = '$write[cp_id]' group by tr_device;");
 	while($data = sql_fetch_array($que)){ $text=($data[tr_device]=="pc")?"PC":"MOBILE"; $device_data[text][]=$text; $device_data[cnt][]=$data[tot_device_count]; }
 	// 시간대
 	$sql = "select ifNull(T2.hour, T1.n) as hour, ifNull(T2.tot_hour_count, 0) as tot_hour_count
 from ( select @N:=@N+1 as n from {$traffic_table}, (select @N:=-1 from dual) NN limit 24 ) as T1
 left outer join ( select hour(tr_datetime) as hour, count(*) as tot_hour_count from {$traffic_table} where tr_cp_id = '$write[cp_id]' group by hour ) as T2 on T1.n = T2.hour
 order by T1.n asc";
-	$que = sql_query($sql);
+	$que = mc_campaign_report_query($sql);
 	while($data = sql_fetch_array($que)){ $time_data[text][]=$data[hour]."시"; $time_data[cnt][]=$data[tot_hour_count]; }
 	// 요일
 	$sql = "select case dayofweek(tr_datetime) when 1 then '일요일' when 2 then '월요일' when 3 then '화요일' when 4 then '수요일' when 5 then '목요일' when 6 then '금요일' when 7 then '토요일' end as DateRange, count(*) as tot_dayw_count from {$traffic_table} where tr_cp_id = '$write[cp_id]' group by dayofweek(tr_datetime)";
-	$que = sql_query($sql);
+	$que = mc_campaign_report_query($sql);
 	while($data = sql_fetch_array($que)){ $dayw_data[text][]=$data[DateRange]; $dayw_data[cnt][]=$data[tot_dayw_count]; }
 	// 월별
 	$sql = "SELECT DATE_FORMAT(tr_date, '%Y-%m') AS date, count(*) AS tot_month_count FROM {$traffic_table} where tr_cp_id = '$write[cp_id]' GROUP BY DATE_FORMAT(tr_date, '%Y-%m')";
-	$que = sql_query($sql);
+	$que = mc_campaign_report_query($sql);
 	while($data = sql_fetch_array($que)){ $month_data[text][]=$data[date]; $month_data[cnt][]=$data[tot_month_count]; }
 	// 일별
 	$sql = "SELECT tr_date AS date, count(*) AS tot_day_count FROM {$traffic_table} where tr_cp_id = '$write[cp_id]' GROUP BY tr_date order by tr_date asc";
-	$que = sql_query($sql);
+	$que = mc_campaign_report_query($sql);
 	while($data = sql_fetch_array($que)){ $day_data[text][]=$data[date]; $day_data[cnt][]=$data[tot_day_count]; }
 	// 누적성과
 	$sql = "SELECT count(*) AS tot_mem_count, B.mb_name FROM {$traffic_table} A inner join nfor_member B on A.tr_mb_no = B.mb_no where tr_cp_id = '$write[cp_id]' GROUP BY B.mb_name";
-	$que = sql_query($sql);
-	while($data = sql_fetch_array($que)){ $blogid_data[text][]=$data[mb_name]; $blogid_data[cnt][]=$data[tot_mem_count]; }
+	$que = mc_campaign_report_query($sql);
+	while($data = sql_fetch_array($que)){ $blogid_data[text][]=mc_campaign_report_mask_name($data[mb_name]); $blogid_data[cnt][]=$data[tot_mem_count]; }
 }
 
 /* ===== 표시용 파생값 ===== */
@@ -271,21 +355,23 @@ table.t tbody tr:last-child td{border-bottom:none;}
 			<thead><tr><th>리뷰어</th><th>등급</th><th>리뷰 채널 / 게시글</th><th>등록일 / 확인일</th><th>상태</th></tr></thead>
 			<tbody>
 			<?php
-			$result = sql_query("select * from nfor_review where rv_cp_id='$write[cp_id]' and rv_delete='0'");
+			$result = mc_campaign_report_query("select * from nfor_review where rv_cp_id='$write[cp_id]' and rv_delete='0'");
 			$row_cnt = 0;
 			while($row = sql_fetch_array($result)){
 				$row_cnt++;
-				$result_mem = sql_fetch("select * from nfor_member where mb_no='".$row[rv_mb_no]."' limit 1");
+				$result_mem = mc_campaign_report_fetch("select * from nfor_member where mb_no='".addslashes($row[rv_mb_no])."' limit 1");
 				if($row[rv_confirm_datetime] && substr($row[rv_confirm_datetime],0,4)!="0000"){ $st="ok"; $st_t="완료"; }
 				elseif($row[rv_reg_datetime] && substr($row[rv_reg_datetime],0,4)!="0000"){ $st="review"; $st_t="검수중"; }
 				elseif($row[rv_asign_datetime] && substr($row[rv_asign_datetime],0,4)!="0000"){ $st="asign"; $st_t="선정"; }
 				else { $st="wait"; $st_t="대기"; }
 				$lv_name = $admin[mb_level][$result_mem[mb_level]] ? $admin[mb_level][$result_mem[mb_level]] : $result_mem[mb_level];
+				$channel_url = mc_campaign_report_http_url($row[rv_channel]);
+				$review_url = mc_campaign_report_http_url($row[rv_url]);
 			?>
 			<tr>
 				<td><b><?=mc_campaign_report_mask_name($result_mem[mb_name])?></b></td>
 				<td><span class="badge-lv"><?=$lv_name?></span></td>
-				<td><a href="<?=htmlspecialchars($row[rv_channel])?>" target="_blank" rel="noopener" class="lnk"><?=htmlspecialchars($row[rv_channel])?></a><?php if($row[rv_url]){ ?><br><a href="<?=htmlspecialchars($row[rv_url])?>" target="_blank" rel="noopener" class="lnk">(리뷰글 보기 &#8599;)</a><?php } ?></td>
+				<td><?php if($channel_url){ ?><a href="<?=htmlspecialchars($channel_url)?>" target="_blank" rel="noopener" class="lnk"><?=htmlspecialchars($channel_url)?></a><?php } else { ?><span class="s">채널 주소 미등록</span><?php } ?><?php if($review_url){ ?><br><a href="<?=htmlspecialchars($review_url)?>" target="_blank" rel="noopener" class="lnk">(리뷰글 보기 &#8599;)</a><?php } ?></td>
 				<td class="dt num"><?=substr($row[rv_reg_datetime],0,10)?><br><span class="s"><?=substr($row[rv_confirm_datetime],0,10)?></span></td>
 				<td><span class="tag <?=$st?>"><?=$st_t?></span></td>
 			</tr>
@@ -378,26 +464,18 @@ if(!is_dir($report_dir) && !@mkdir($report_dir, 0755, true)){
 	return mc_campaign_report_result(false, "/report 폴더를 만들 수 없습니다", array("subject"=>$write[cp_subject]));
 }
 
-$token = mc_share_token($cp_id);   // 서버 비밀키 기반 HMAC 24자(추측 불가) 2026-06-18
-$fname = "cr_" . $cp_id . "_" . $token . ".html";
-$fpath = $report_dir . "/" . $fname;
-$tmp = @tempnam($report_dir, ".mc_report_");
-if($tmp === false) return mc_campaign_report_result(false, "임시 보고서 파일을 만들 수 없습니다", array("subject"=>$write[cp_subject]));
-
-$written = @file_put_contents($tmp, $html, LOCK_EX);
-if($written === false || $written < strlen($html)){
-	@unlink($tmp);
-	return mc_campaign_report_result(false, "보고서 파일을 끝까지 저장하지 못했습니다", array("subject"=>$write[cp_subject]));
-}
-@chmod($tmp, 0644);
-if(!@rename($tmp, $fpath)){
-	@unlink($tmp);
-	return mc_campaign_report_result(false, "새 보고서 파일로 교체하지 못했습니다", array("subject"=>$write[cp_subject]));
+$existing_paths = mc_campaign_report_existing_paths($cp_id);
+$fpath = !empty($existing_paths) ? $existing_paths[0] : mc_campaign_report_canonical_path($cp_id);
+if($fpath === "") return mc_campaign_report_result(false, "공개 보고서 경로를 만들 수 없습니다", array("subject"=>$write[cp_subject]));
+$targets = !empty($existing_paths) ? $existing_paths : array($fpath);
+foreach($targets as $target){
+	$write_result = mc_campaign_report_write_atomic($target, $html);
+	if(!$write_result['ok']){
+		return mc_campaign_report_result(false, $write_result['error'], array("subject"=>$write[cp_subject]));
+	}
 }
 
-// 새 파일 저장이 성공한 뒤에만 구(舊)토큰 파일을 정리한다.
-foreach((array)glob($report_dir."/cr_".$cp_id."_*.html") as $old){ if($old !== $fpath) @unlink($old); }
-
+$fname = basename($fpath);
 $public_url = mc_campaign_report_base_url()."/report/".$fname;
 return mc_campaign_report_result(true, "", array(
 	"cp_id"=>(int)$cp_id,
@@ -418,33 +496,94 @@ function mc_campaign_report_preserve_metatech($cp_id){
 }
 
 function mc_campaign_report_refresh_after_review($cp_id){
+	try {
+		$cp_id = preg_replace('/[^0-9]/', '', $cp_id);
+		if(!$cp_id) return mc_campaign_report_result(false, "캠페인 번호가 없습니다");
+		$campaign = mc_campaign_report_fetch("select cp_id, cp_result_datetime from nfor_campaign where cp_id='$cp_id'");
+		if(!$campaign[cp_id]) return mc_campaign_report_result(false, "캠페인을 찾을 수 없습니다");
+		$finished = $campaign[cp_result_datetime]
+			&& $campaign[cp_result_datetime] !== '0000-00-00 00:00:00'
+			&& strtotime($campaign[cp_result_datetime]) <= time();
+		if(!$finished && !mc_campaign_report_exists($cp_id)){
+			return mc_campaign_report_result(true, "", array("skipped"=>true, "cp_id"=>(int)$cp_id));
+		}
+		return mc_campaign_report_generate($cp_id, mc_campaign_report_preserve_metatech($cp_id));
+	} catch(Exception $e) {
+		return mc_campaign_report_result(false, $e->getMessage(), array("cp_id"=>(int)$cp_id));
+	}
+}
+
+function mc_campaign_report_queue_dir(){
+	return dirname(dirname(__FILE__))."/report/.queue";
+}
+
+function mc_campaign_report_enqueue($cp_id){
 	$cp_id = preg_replace('/[^0-9]/', '', $cp_id);
 	if(!$cp_id) return mc_campaign_report_result(false, "캠페인 번호가 없습니다");
-	$campaign = sql_fetch("select cp_id, cp_result_datetime from nfor_campaign where cp_id='$cp_id'");
-	if(!$campaign[cp_id]) return mc_campaign_report_result(false, "캠페인을 찾을 수 없습니다");
-	$finished = $campaign[cp_result_datetime]
-		&& $campaign[cp_result_datetime] !== '0000-00-00 00:00:00'
-		&& strtotime($campaign[cp_result_datetime]) <= time();
-	if(!$finished && !mc_campaign_report_exists($cp_id)){
-		return mc_campaign_report_result(true, "", array("skipped"=>true, "cp_id"=>(int)$cp_id));
+	$dir = mc_campaign_report_queue_dir();
+	if(!is_dir($dir) && !@mkdir($dir, 0755, true)){
+		return mc_campaign_report_result(false, "보고서 갱신 대기열을 만들지 못했습니다", array("cp_id"=>(int)$cp_id));
 	}
-	return mc_campaign_report_generate($cp_id, mc_campaign_report_preserve_metatech($cp_id));
+	$path = $dir."/".$cp_id.".pending";
+	$tmp = $path.".".getmypid().".tmp";
+	if(@file_put_contents($tmp, date('c'), LOCK_EX) === false || !@rename($tmp, $path)){
+		@unlink($tmp);
+		return mc_campaign_report_result(false, "보고서 갱신 요청을 저장하지 못했습니다", array("cp_id"=>(int)$cp_id));
+	}
+	return mc_campaign_report_result(true, "", array("cp_id"=>(int)$cp_id, "queued"=>true));
+}
+
+function mc_campaign_report_process_queue($limit=20){
+	$limit = max(1, min(50, (int)$limit));
+	$dir = mc_campaign_report_queue_dir();
+	if(!is_dir($dir)) return array("ok"=>true, "attempted"=>0, "generated"=>0, "failed"=>0, "errors"=>array());
+	$files = glob($dir."/*.pending");
+	if(!is_array($files)) $files = array();
+	usort($files, function($a, $b){
+		$am = @filemtime($a); $bm = @filemtime($b);
+		if($am == $bm) return strnatcmp($a, $b);
+		return $am < $bm ? -1 : 1;
+	});
+	$attempted = 0; $generated = 0; $failed = 0; $errors = array();
+	foreach($files as $path){
+		if($attempted >= $limit) break;
+		$cp_id = preg_replace('/[^0-9]/', '', basename($path, '.pending'));
+		if(!$cp_id){ @unlink($path); continue; }
+		$processing = $path.".".getmypid().".processing";
+		if(!@rename($path, $processing)) continue;
+		$attempted++;
+		$result = mc_campaign_report_refresh_after_review($cp_id);
+		if($result['ok']){ $generated++; @unlink($processing); }
+		else {
+			$failed++;
+			$errors[] = array("cp_id"=>(int)$cp_id, "error"=>$result['error']);
+			if(is_file($path)) @unlink($processing); // 생성 중 들어온 최신 요청은 그대로 둔다.
+			else { @rename($processing, $path); @touch($path); }
+		}
+	}
+	return array("ok"=>$failed===0, "attempted"=>$attempted, "generated"=>$generated, "failed"=>$failed, "errors"=>$errors);
 }
 
 function mc_campaign_report_generate_missing($limit=20){
 	$limit = max(1, min(50, (int)$limit));
-	$generated = 0; $failed = 0; $errors = array();
-	$rows = sql_query("select cp_id from nfor_campaign
-		where cp_result_datetime is not null and cp_result_datetime<>''
-		and cp_result_datetime<>'0000-00-00 00:00:00' and cp_result_datetime<=NOW()
-		order by cp_result_datetime desc, cp_id desc");
+	$attempted = 0; $generated = 0; $failed = 0; $errors = array();
+	try {
+		$rows = mc_campaign_report_query("select cp_id from nfor_campaign
+			where cp_result_datetime is not null and cp_result_datetime<>''
+			and cp_result_datetime<>'0000-00-00 00:00:00' and cp_result_datetime<=NOW()
+			order by cp_result_datetime desc, cp_id desc");
+	} catch(Exception $e) {
+		return array("ok"=>false, "attempted"=>0, "generated"=>0, "failed"=>1,
+			"errors"=>array(array("cp_id"=>0, "error"=>$e->getMessage())));
+	}
 	while($campaign = sql_fetch_array($rows)){
 		$cp_id = $campaign[cp_id];
 		if(mc_campaign_report_exists($cp_id)) continue;
+		$attempted++;
 		$result = mc_campaign_report_generate($cp_id, false);
 		if($result['ok']) $generated++;
 		else { $failed++; $errors[] = array("cp_id"=>(int)$cp_id, "error"=>$result['error']); }
-		if($generated + $failed >= $limit) break;
+		if($attempted >= $limit) break;
 	}
-	return array("ok"=>$failed===0, "generated"=>$generated, "failed"=>$failed, "errors"=>$errors);
+	return array("ok"=>$failed===0, "attempted"=>$attempted, "generated"=>$generated, "failed"=>$failed, "errors"=>$errors);
 }
