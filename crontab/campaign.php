@@ -36,6 +36,14 @@ keyword_update();
 // 선정 후 N영업일 미신고자 구매 독촉 알림톡 (요청:양근형 2026-06-30) — 템플릿코드 미설정 시 무발송(안전)
 include_once "buy_remind.php";
 
+// 결과일이 지난 회차의 광고주 공개 보고서를 자동 생성한다.
+// 한 번에 20건만 처리해 기존 일일 크론 부하를 제한하고, 다음 실행에서 이어서 소급한다.
+include_once $nfor[path]."/lib/mc_campaign_report.lib.php";
+$mc_report_batch = mc_campaign_report_generate_missing(20);
+if(!empty($mc_report_batch['failed'])){
+	@error_log("[metacrew-report] batch failed=".(int)$mc_report_batch['failed']." ".json_encode($mc_report_batch['errors'], JSON_UNESCAPED_UNICODE));
+}
+
 exit;
 
 // 휴면회원 자동삭제(개인정보유효기간 설정일까지만 보관) - 적용이후 복구불가
