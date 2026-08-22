@@ -73,6 +73,7 @@ jobs:
               SERVER="${SZ:-0} bytes"
             elif [ $RC -eq 19 ] || echo "$OUT" | grep -qi "550\|not exist\|No such file"; then
               SERVER="없음 (서버에 그 파일이 없습니다 — 신규)"
+              echo "$p 서버 응답: $(echo "$OUT" | tail -1)"
             else
               case $RC in
                 6)  WHY="주소를 못 찾았습니다 (호스트 확인)";;
