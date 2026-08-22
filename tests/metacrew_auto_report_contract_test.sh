@@ -28,6 +28,7 @@ need "lib/mc_campaign_report.lib.php" 'function mc_campaign_report_enqueue\(' "�
 need "lib/mc_campaign_report.lib.php" 'function mc_campaign_report_process_queue\(' "대기열 처리 인터페이스가 없습니다"
 need "lib/mc_campaign_report.lib.php" 'function mc_campaign_report_existing_paths\(' "기존 구형 토큰 보고서 주소를 보존하지 않습니다"
 need "lib/mc_campaign_report.lib.php" '\.processing' "생성 중 새 리뷰 갱신 요청을 보호하는 대기열 선점이 없습니다"
+need "lib/mc_campaign_report.lib.php" 'function mc_campaign_report_recover_stale_claims\(' "중단된 보고서 생성 작업을 다시 대기열로 복구하지 않습니다"
 need "lib/mc_campaign_report.lib.php" 'rename\(' "보고서 파일을 원자적으로 교체하지 않습니다"
 need "lib/mc_campaign_report.lib.php" "rv_delete='0'" "삭제된 리뷰를 공개 보고서에서 제외하지 않습니다"
 need "lib/mc_campaign_report.lib.php" 'JSON_HEX_TAG' "차트 데이터를 공개 HTML에 안전하게 직렬화하지 않습니다"

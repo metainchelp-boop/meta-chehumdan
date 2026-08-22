@@ -533,10 +533,33 @@ function mc_campaign_report_enqueue($cp_id){
 	return mc_campaign_report_result(true, "", array("cp_id"=>(int)$cp_id, "queued"=>true));
 }
 
+function mc_campaign_report_recover_stale_claims($max_age=3600){
+	$dir = mc_campaign_report_queue_dir();
+	if(!is_dir($dir)) return 0;
+	$claims = glob($dir."/*.processing");
+	if(!is_array($claims)) return 0;
+	$recovered = 0;
+	$deadline = time() - max(300, (int)$max_age);
+	foreach($claims as $claim){
+		$mtime = @filemtime($claim);
+		if($mtime === false || $mtime > $deadline) continue;
+		$pending = preg_replace('/\.pending\.[0-9]+\.processing$/', '.pending', $claim);
+		if($pending === $claim) continue;
+		if(is_file($pending)){
+			@unlink($claim); // 더 최신 요청이 이미 있으므로 고아 claim만 정리한다.
+			$recovered++;
+		} elseif(@rename($claim, $pending)) {
+			$recovered++;
+		}
+	}
+	return $recovered;
+}
+
 function mc_campaign_report_process_queue($limit=20){
 	$limit = max(1, min(50, (int)$limit));
 	$dir = mc_campaign_report_queue_dir();
 	if(!is_dir($dir)) return array("ok"=>true, "attempted"=>0, "generated"=>0, "failed"=>0, "errors"=>array());
+	mc_campaign_report_recover_stale_claims();
 	$files = glob($dir."/*.pending");
 	if(!is_array($files)) $files = array();
 	usort($files, function($a, $b){
