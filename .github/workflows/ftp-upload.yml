@@ -52,7 +52,7 @@ jobs:
             echo "::error::FTP 접속 정보(시크릿)가 없습니다. 저장소 Settings ▸ Secrets 에 CHEHUMDAN_FTP_HOST/USER/PASS/DIR 를 등록해 주세요."
             exit 1
           fi
-          DIR="${REMOTE_DIR:-/www}"
+          DIR="${REMOTE_DIR:-/www}"; DIR="${DIR%/}"
           IFS=',' read -ra F <<< "${{ inputs.files }}"
           echo "## 서버 현재 파일 vs 올릴 파일" >> $GITHUB_STEP_SUMMARY
           echo "| 파일 | 서버 | 올릴 것 |" >> $GITHUB_STEP_SUMMARY
@@ -106,7 +106,7 @@ jobs:
           REMOTE_DIR: ${{ secrets.CHEHUMDAN_FTP_DIR }}
         run: |
           set -e
-          DIR="${REMOTE_DIR:-/www}"
+          DIR="${REMOTE_DIR:-/www}"; DIR="${DIR%/}"
           IFS=',' read -ra F <<< "${{ inputs.files }}"
           for f in "${F[@]}"; do
             p="$(echo "$f" | xargs)"; [ -z "$p" ] && continue
