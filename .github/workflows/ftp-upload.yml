@@ -67,7 +67,7 @@ jobs:
             # ⚠️ set -e 아래서 OUT=$(curl ...) 는 curl 이 실패하는 순간 스크립트를 죽여
             #    아래 RC 분기에 닿지도 못한다(실측: exit 9 로 통째로 종료). || 로 받아야 한다.
             RC=0
-            OUT=$(curl -sS --ftp-ssl --insecure --connect-timeout 20 -u "$USER:$PASS" -I "ftp://$HOST$DIR/$p" 2>&1) || RC=$?
+            OUT=$(curl -sS --ftp-ssl --insecure --ftp-method nocwd --connect-timeout 20 -u "$USER:$PASS" -I "ftp://$HOST$DIR/$p" 2>&1) || RC=$?
             if [ $RC -eq 0 ]; then
               SZ=$(echo "$OUT" | grep -i '^Content-Length:' | tr -d '\r' | awk '{print $2}')
               SERVER="${SZ:-0} bytes"
@@ -111,7 +111,7 @@ jobs:
           for f in "${F[@]}"; do
             p="$(echo "$f" | xargs)"; [ -z "$p" ] && continue
             echo "올리는 중: $p"
-            curl -sS --ftp-ssl --insecure --ftp-create-dirs \
+            curl -sS --ftp-ssl --insecure --ftp-method nocwd \
                  -u "$USER:$PASS" -T "$p" "ftp://$HOST$DIR/$p"
             echo "✅ $p 업로드 완료" >> $GITHUB_STEP_SUMMARY
           done
