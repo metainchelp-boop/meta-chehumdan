@@ -1,0 +1,53 @@
+name: 포인트 출금 계좌 정정 PHP 7 검사
+
+on:
+  pull_request:
+    paths:
+      - 'lib/mc_point_bank_account.lib.php'
+      - 'front/mc_point_bank_account_api.php'
+      - 'admin/inc_point_bank_account_edit.php'
+      - 'admin/point_bank_*.php'
+      - 'mc_point_bank_api.php'
+      - 'docs/sql/2026-08-29-point-bank-account-correction.sql'
+      - 'tests/point_bank_*'
+      - '.github/workflows/point-bank-account-*.yml'
+  workflow_dispatch:
+
+jobs:
+  php7-contract:
+    runs-on: ubuntu-22.04
+    services:
+      mariadb:
+        image: mariadb:10.5
+        env:
+          MARIADB_ROOT_PASSWORD: pointbank-test
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h 127.0.0.1 -uroot -ppointbank-test"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '7.0'
+          extensions: mysqli
+          coverage: none
+      - name: PHP 7.0 문법·정적 계약
+        run: |
+          set -e
+          php -l lib/mc_point_bank_account.lib.php
+          php -l front/mc_point_bank_account_api.php
+          php -l admin/inc_point_bank_account_edit.php
+          php -l scripts/build_point_bank_private_config.php
+          php tests/point_bank_account_protocol_test.php
+          bash tests/point_bank_account_contract_test.sh
+      - name: MariaDB 원자성·mode OFF·setstep 경합 실행 회귀
+        env:
+          POINT_BANK_TEST_DB_HOST: 127.0.0.1
+          POINT_BANK_TEST_DB_PORT: 3306
+          POINT_BANK_TEST_DB_USER: root
+          POINT_BANK_TEST_DB_PASSWORD: pointbank-test
+        run: php tests/point_bank_admin_atomicity_test.php
