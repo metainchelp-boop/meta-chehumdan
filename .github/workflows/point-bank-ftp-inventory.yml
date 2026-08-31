@@ -2,6 +2,11 @@ name: Cafe24 FTP 웹루트 읽기 전용 진단
 
 on:
   workflow_dispatch:
+    inputs:
+      wait_for_allowlist:
+        description: '특정 IP 허용 대기 후 필수 라이브 파일을 읽기 전용 백업하려면 WAIT 입력'
+        required: false
+        default: ''
 
 permissions:
   contents: read
@@ -11,7 +16,7 @@ concurrency: chehumdan-ftp-inventory
 jobs:
   inventory:
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 15
     steps:
       - name: FTP 디렉터리 목록만 수집
         env:
@@ -19,6 +24,7 @@ jobs:
           USER: ${{ secrets.CHEHUMDAN_FTP_USER }}
           PASS: ${{ secrets.CHEHUMDAN_FTP_PASS }}
           CONFIGURED_DIR: ${{ secrets.CHEHUMDAN_FTP_DIR }}
+          WAIT_FOR_ALLOWLIST: ${{ inputs.wait_for_allowlist }}
         run: |
           set -euo pipefail
           test -n "$HOST"
@@ -27,6 +33,65 @@ jobs:
 
           inventory_dir=$(mktemp -d)
           trap 'rm -rf "$inventory_dir"' EXIT
+
+          if [ "$WAIT_FOR_ALLOWLIST" = 'WAIT' ]; then
+            runner_ip=$(curl -fsS --connect-timeout 10 --max-time 15 https://api.ipify.org)
+            case "$runner_ip" in
+              *[!0-9.]*) echo '::error::GitHub 실행기 IPv4를 확인하지 못했습니다.'; exit 1;;
+            esac
+            echo "GitHub 실행기 허용 IP: $runner_ip" >> "$GITHUB_STEP_SUMMARY"
+            echo "::notice::GitHub 실행기 허용 IP: $runner_ip"
+
+            candidate_dirs=(
+              ''
+              '/www'
+              "/home/$USER/www"
+              "/home/hosting_users/$USER/www"
+            )
+            required_files=(
+              admin/inc_point_bank_account_edit.php
+              mc_point_bank_api.php
+              admin/point_bank_list.php
+              admin/point_bank_wait_list.php
+              admin/point_bank_stop_list.php
+            )
+            matched_dir=''
+            matched=0
+            probe_file="$inventory_dir/probe.php"
+            for attempt in $(seq 1 72); do
+              for candidate_dir in "${candidate_dirs[@]}"; do
+                rc=0
+                curl -sS --ftp-ssl --insecure --ftp-method nocwd \
+                  --connect-timeout 10 --max-time 15 -u "$USER:$PASS" \
+                  "ftp://$HOST${candidate_dir}/mc_point_bank_api.php" \
+                  -o "$probe_file" || rc=$?
+                if [ "$rc" -eq 0 ] && [ -s "$probe_file" ]; then
+                  matched_dir="$candidate_dir"
+                  matched=1
+                  break 2
+                fi
+                rm -f "$probe_file"
+              done
+              echo "허용 대기 ${attempt}/72" >> "$GITHUB_STEP_SUMMARY"
+              sleep 10
+            done
+            if [ "$matched" -ne 1 ]; then
+              echo '::error::12분 안에 필수 라이브 파일을 읽지 못했습니다.'
+              exit 1
+            fi
+
+            mkdir -p live-backup
+            for path in "${required_files[@]}"; do
+              mkdir -p "live-backup/$(dirname "$path")"
+              curl -fsS --ftp-ssl --insecure --ftp-method nocwd \
+                --connect-timeout 10 --max-time 30 -u "$USER:$PASS" \
+                "ftp://$HOST${matched_dir}/$path" -o "live-backup/$path"
+              test -s "live-backup/$path"
+              printf '%s  %s\n' "$(sha256sum "live-backup/$path" | awk '{print $1}')" "$path" \
+                >> live-backup/SHA256SUMS
+            done
+            echo '필수 라이브 파일 5개를 읽기 전용으로 백업했습니다.' >> "$GITHUB_STEP_SUMMARY"
+          fi
 
           paths=(
             '/'
@@ -80,6 +145,8 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: cafe24-ftp-inventory-${{ github.run_id }}
-          path: ftp-inventory
+          path: |
+            ftp-inventory
+            live-backup
           if-no-files-found: error
           retention-days: 1
