@@ -1,5 +1,6 @@
 <?php
 include_once "path.php";
+require_once $nfor['path']."/lib/mc_point_bank_account.lib.php";
 
 $admin[keyword_type] = array(""=>"전체","pb_name" => "예금주", "pb_bank"=>"은행", "pb_bank_number"=>"계좌번호");
 $admin[period_type] = array("pb_datetime" => "등록일자");
@@ -9,12 +10,17 @@ $form = str_replace("list","form",$list);
 $table = "nfor_point_bank";
 $id = "pb_id";
 
+$mc_pb_edit_step = 2;
+include_once "inc_point_bank_account_edit.php";
+
 
 if($mode=="list_update1"){
+	$mc_pb_ids = array();
+	foreach($_POST['chk'] as $checked) $mc_pb_ids[] = $_POST['pb_id'][$checked];
+	$mc_pb_result = mc_pb_set_step_atomic($connect_db, $mc_pb_ids, 3, array('changeDatetime'=>true));
+	if(empty($mc_pb_result['ok'])) json_return($mc_pb_result['code']==='ACCOUNT_CHANGE_PENDING' ? "계좌정보 확인 중인 출금 건은 처리할 수 없습니다." : "상태 변경 중 오류가 발생했습니다.","fail");
 	for($i=0; $i<count($chk); $i++){
 		$k = $_POST['chk'][$i];
-		sql_query("update nfor_point_bank set pb_step='3', pb_chage_datetime=NOW() where pb_id='{$_POST['pb_id'][$k]}'");
-
 		$data = sql_fetch("select * from nfor_point_bank where pb_id='{$_POST['pb_id'][$k]}'");
 		$mb = sql_fetch("select * from nfor_member where mb_no='$data[pb_mb_no]'");
 		nfor_send("bank_step3",$mb[mb_email],$mb[mb_hp],$mb[mb_no],"","point_bank_list.php");
@@ -23,10 +29,12 @@ if($mode=="list_update1"){
 }
 
 if($mode=="list_update2"){
+	$mc_pb_ids = array();
+	foreach($_POST['chk'] as $checked) $mc_pb_ids[] = $_POST['pb_id'][$checked];
+	$mc_pb_result = mc_pb_set_step_atomic($connect_db, $mc_pb_ids, 4, array('changeDatetime'=>true));
+	if(empty($mc_pb_result['ok'])) json_return($mc_pb_result['code']==='ACCOUNT_CHANGE_PENDING' ? "계좌정보 확인 중인 출금 건은 처리할 수 없습니다." : "상태 변경 중 오류가 발생했습니다.","fail");
 	for($i=0; $i<count($chk); $i++){
 		$k = $_POST['chk'][$i];
-		sql_query("update nfor_point_bank set pb_step='4', pb_chage_datetime=NOW() where pb_id='{$_POST['pb_id'][$k]}'");
-
 		$data = sql_fetch("select * from nfor_point_bank where pb_id='{$_POST['pb_id'][$k]}'");
 		$mb = sql_fetch("select * from nfor_member where mb_no='$data[pb_mb_no]'");
 		nfor_send("bank_step4",$mb[mb_email],$mb[mb_hp],$mb[mb_no],"","point_bank_list.php");
@@ -216,7 +224,7 @@ for($i=0; $row=sql_fetch_array($result); $i++){
 	<td><?=substr($row[pb_datetime],0,10)?></td>
 	<td><?=$row[pb_name]?></td>
 	<td><?=$row[pb_bank]?></td>
-	<td><?=$row[pb_bank_number]?></td>
+	<td><?=$row[pb_bank_number]?><br><?=mc_pb_account_edit_button($row)?></td>
 	<td><?=number_format($row[pb_point])?>원</td>
 	<td><?=pb_step($row[pb_step])?></td>
 	<td><?=substr($row[pb_chage_datetime],0,10)?></td>
@@ -283,5 +291,6 @@ $(document).on("click", "#list_update2", function(){
 </script>
 
 <?php
+mc_pb_account_edit_layer();
 include_once "tail.php";
 ?>

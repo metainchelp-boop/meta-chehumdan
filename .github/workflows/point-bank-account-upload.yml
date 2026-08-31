@@ -1,0 +1,181 @@
+name: 포인트 출금 계좌 정정 검증·지정 업로드
+
+on:
+  workflow_dispatch:
+    inputs:
+      baseline_confirm:
+        description: '라이브 백업과 diff를 확인했으면 VERIFIED 입력'
+        required: false
+        default: ''
+      ddl_confirm:
+        description: 'DDL·InnoDB·mode OFF 확인 뒤 DDL_OFF_VERIFIED 입력'
+        required: false
+        default: ''
+      confirm:
+        description: '실제 업로드는 UPLOAD 입력 (기본은 미리보기)'
+        required: false
+        default: ''
+
+concurrency: chehumdan-ftp-upload
+
+jobs:
+  verify-and-upload:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '7.0'
+          coverage: none
+
+      - name: PHP 7.0 문법·프로토콜 검사
+        run: |
+          set -e
+          php -l lib/mc_point_bank_account.lib.php
+          php -l front/mc_point_bank_account_api.php
+          php -l admin/inc_point_bank_account_edit.php
+          php -l mc_point_bank_api.php
+          php -l admin/point_bank_list.php
+          php -l admin/point_bank_wait_list.php
+          php -l admin/point_bank_stop_list.php
+          php -l scripts/build_point_bank_private_config.php
+          php tests/point_bank_account_protocol_test.php
+          bash tests/point_bank_account_contract_test.sh
+
+      - name: 런타임 private config 생성·self-test
+        env:
+          METACREW_POINT_BANK_TOKEN: ${{ secrets.METACREW_POINT_BANK_TOKEN }}
+          METACREW_POINT_BANK_HMAC_CURRENT_ID: ${{ secrets.METACREW_POINT_BANK_HMAC_CURRENT_ID }}
+          METACREW_POINT_BANK_HMAC_CURRENT_SECRET: ${{ secrets.METACREW_POINT_BANK_HMAC_CURRENT_SECRET }}
+          METACREW_POINT_BANK_HMAC_PREVIOUS_ID: ${{ secrets.METACREW_POINT_BANK_HMAC_PREVIOUS_ID }}
+          METACREW_POINT_BANK_HMAC_PREVIOUS_SECRET: ${{ secrets.METACREW_POINT_BANK_HMAC_PREVIOUS_SECRET }}
+        run: |
+          set -e
+          php scripts/build_point_bank_private_config.php data/private/mc_point_bank_account_secrets.php
+          env -u METACREW_POINT_BANK_TOKEN \
+              -u METACREW_POINT_BANK_HMAC_CURRENT_ID \
+              -u METACREW_POINT_BANK_HMAC_CURRENT_SECRET \
+              -u METACREW_POINT_BANK_HMAC_PREVIOUS_ID \
+              -u METACREW_POINT_BANK_HMAC_PREVIOUS_SECRET \
+              php -r 'require "lib/mc_point_bank_account.lib.php"; exit(mc_pb_protocol_self_test(mc_pb_source_config()) ? 0 : 1);'
+
+      - name: 라이브 파일 백업·checksum 비교
+        env:
+          HOST: ${{ secrets.CHEHUMDAN_FTP_HOST }}
+          USER: ${{ secrets.CHEHUMDAN_FTP_USER }}
+          PASS: ${{ secrets.CHEHUMDAN_FTP_PASS }}
+          REMOTE_DIR: ${{ secrets.CHEHUMDAN_FTP_DIR }}
+        run: |
+          set -e
+          test -n "$HOST"
+          DIR="${REMOTE_DIR:-/www}"; DIR="${DIR%/}"
+          files=(
+            lib/mc_point_bank_account.lib.php
+            front/mc_point_bank_account_api.php
+            admin/inc_point_bank_account_edit.php
+            mc_point_bank_api.php
+            admin/point_bank_list.php
+            admin/point_bank_wait_list.php
+            admin/point_bank_stop_list.php
+            data/private/.htaccess
+          )
+          mkdir -p live-backup
+          echo '| 파일 | 라이브 SHA-256 | 배포본 SHA-256 |' >> "$GITHUB_STEP_SUMMARY"
+          echo '|---|---|---|' >> "$GITHUB_STEP_SUMMARY"
+          for p in "${files[@]}"; do
+            test -f "$p"
+            mkdir -p "live-backup/$(dirname "$p")"
+            rc=0
+            curl -sS --ftp-ssl --insecure --ftp-method nocwd --connect-timeout 20 \
+              -u "$USER:$PASS" "ftp://$HOST$DIR/$p" -o "live-backup/$p" || rc=$?
+            if [ "$rc" -eq 0 ]; then
+              live_sha=$(sha256sum "live-backup/$p" | awk '{print $1}')
+            elif [ "$rc" -eq 19 ] || [ "$rc" -eq 78 ]; then
+              rm -f "live-backup/$p"
+              live_sha='신규 파일'
+            else
+              echo "::error::$p 라이브 백업 실패 (curl $rc)"
+              exit 1
+            fi
+            local_sha=$(sha256sum "$p" | awk '{print $1}')
+            echo "| \`$p\` | $live_sha | $local_sha |" >> "$GITHUB_STEP_SUMMARY"
+          done
+
+      - name: 라이브 백업 보관
+        uses: actions/upload-artifact@v4
+        with:
+          name: point-bank-live-backup-${{ github.run_id }}
+          path: live-backup
+          if-no-files-found: warn
+          retention-days: 30
+
+      - name: baseline 확인 없이 업로드 차단
+        if: ${{ inputs.confirm == 'UPLOAD' && (inputs.baseline_confirm != 'VERIFIED' || inputs.ddl_confirm != 'DDL_OFF_VERIFIED') }}
+        run: |
+          echo '::error::라이브 diff와 DDL/InnoDB/mode OFF를 먼저 확인하세요.'
+          exit 1
+
+      - name: 지정 파일만 업로드
+        if: ${{ inputs.confirm == 'UPLOAD' && inputs.baseline_confirm == 'VERIFIED' && inputs.ddl_confirm == 'DDL_OFF_VERIFIED' }}
+        env:
+          HOST: ${{ secrets.CHEHUMDAN_FTP_HOST }}
+          USER: ${{ secrets.CHEHUMDAN_FTP_USER }}
+          PASS: ${{ secrets.CHEHUMDAN_FTP_PASS }}
+          REMOTE_DIR: ${{ secrets.CHEHUMDAN_FTP_DIR }}
+        run: |
+          set -e
+          DIR="${REMOTE_DIR:-/www}"; DIR="${DIR%/}"
+          test -f data/private/mc_point_bank_account_secrets.php
+          curl -sS --ftp-ssl --insecure --ftp-method nocwd --ftp-create-dirs \
+            -u "$USER:$PASS" -T data/private/.htaccess "ftp://$HOST$DIR/data/private/.htaccess"
+          curl -sS --ftp-ssl --insecure --ftp-method nocwd --ftp-create-dirs \
+            -u "$USER:$PASS" -T data/private/mc_point_bank_account_secrets.php "ftp://$HOST$DIR/data/private/mc_point_bank_account_secrets.php"
+          files=(
+            lib/mc_point_bank_account.lib.php
+            front/mc_point_bank_account_api.php
+            admin/inc_point_bank_account_edit.php
+            mc_point_bank_api.php
+            admin/point_bank_list.php
+            admin/point_bank_wait_list.php
+            admin/point_bank_stop_list.php
+          )
+          for p in "${files[@]}"; do
+            curl -sS --ftp-ssl --insecure --ftp-method nocwd --ftp-create-dirs \
+              -u "$USER:$PASS" -T "$p" "ftp://$HOST$DIR/$p"
+            echo "✅ $p" >> "$GITHUB_STEP_SUMMARY"
+          done
+
+      - name: 업로드 후 원격 파일 checksum 검증
+        if: ${{ inputs.confirm == 'UPLOAD' && inputs.baseline_confirm == 'VERIFIED' && inputs.ddl_confirm == 'DDL_OFF_VERIFIED' }}
+        env:
+          HOST: ${{ secrets.CHEHUMDAN_FTP_HOST }}
+          USER: ${{ secrets.CHEHUMDAN_FTP_USER }}
+          PASS: ${{ secrets.CHEHUMDAN_FTP_PASS }}
+          REMOTE_DIR: ${{ secrets.CHEHUMDAN_FTP_DIR }}
+        run: |
+          set -e
+          DIR="${REMOTE_DIR:-/www}"; DIR="${DIR%/}"
+          files=(
+            data/private/.htaccess
+            data/private/mc_point_bank_account_secrets.php
+            lib/mc_point_bank_account.lib.php
+            front/mc_point_bank_account_api.php
+            admin/inc_point_bank_account_edit.php
+            mc_point_bank_api.php
+            admin/point_bank_list.php
+            admin/point_bank_wait_list.php
+            admin/point_bank_stop_list.php
+          )
+          verify_dir=$(mktemp -d)
+          trap 'rm -rf "$verify_dir"' EXIT
+          for p in "${files[@]}"; do
+            mkdir -p "$verify_dir/$(dirname "$p")"
+            curl -sS --ftp-ssl --insecure --ftp-method nocwd --connect-timeout 20 \
+              -u "$USER:$PASS" "ftp://$HOST$DIR/$p" -o "$verify_dir/$p"
+            if ! cmp -s "$p" "$verify_dir/$p"; then
+              echo "::error::$p 업로드 후 원격 파일이 배포본과 일치하지 않습니다."
+              exit 1
+            fi
+            echo "✅ 원격 일치: $p" >> "$GITHUB_STEP_SUMMARY"
+          done

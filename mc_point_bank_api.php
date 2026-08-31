@@ -6,6 +6,7 @@
  * 반환: 출금요청 대기(pb_step=3) 목록. ★주민번호(pb_jumin)·첨부파일은 의도적으로 제외(개인정보 보호).
  */
 include_once "path.php";
+require_once $nfor['path']."/lib/mc_point_bank_account.lib.php";
 
 // ───────── 토큰 인증 ─────────
 $MC_PB_TOKEN = "7952c008af88f4207089fbca8c9a1f49af34b21f5548a847e64dbfa44fb2a88e";
@@ -30,16 +31,23 @@ if($action === 'setstep'){
 		echo json_encode(array("ok"=>false,"error"=>"bad_params"));
 		exit;
 	}
-	$inClause = implode(',', $idList); // 정수만 통과시켜 SQL 인젝션 방지
-	sql_query("update nfor_point_bank set pb_step='".$step."' where pb_id in (".$inClause.")");
-	echo json_encode(array("ok"=>true, "updated"=>count($idList), "step"=>$step));
+	$result = mc_pb_set_step_atomic($connect_db, $idList, $step);
+	if(empty($result['ok'])){
+		if(isset($result['code']) && $result['code'] === 'ACCOUNT_CHANGE_PENDING') http_response_code(423);
+		else http_response_code(500);
+		echo json_encode(array("ok"=>false,"error"=>isset($result['code']) ? strtolower($result['code']) : "save_failed"));
+		exit;
+	}
+	echo json_encode(array("ok"=>true, "updated"=>$result['updated'], "step"=>$result['step']));
 	exit;
 }
 
 // ───────── 조회 (pb_step 1신청·2예정·3완료·4이슈, 최신순) ─────────
 $rows = array();
-$res = sql_query("select pb_id, pb_mb_id, pb_name, pb_point, pb_datetime, pb_bank, pb_bank_number, pb_step
+$res = sql_query("select pb_id, pb_mb_id, pb_name, pb_point, pb_datetime, pb_bank, pb_bank_number, pb_step, pb_row_revision
                   from nfor_point_bank where pb_step in ('1','2','3','4') order by pb_id desc limit 3000");
+$mcPbAccountConfig = mc_pb_source_config();
+$mcPbCanIssueRevision = mc_pb_protocol_self_test($mcPbAccountConfig);
 while($r = sql_fetch_array($res)){
 	$amount = (int)$r['pb_point'];
 	// 차인지급액 = (요청금액 - 500원 수수료) × 96.7% (3.3% 원천징수 공제) — 전산 시트 규칙과 동일
@@ -53,13 +61,15 @@ while($r = sql_fetch_array($res)){
 		"payoutAmount"=> $payout,                  // 차인 지급액(원)
 		"requestDate" => substr($r['pb_datetime'], 0, 10),
 		"bank"        => $r['pb_bank'],
-		"account"     => $r['pb_bank_number']
+		"account"     => $r['pb_bank_number'],
+		"revision"    => $mcPbCanIssueRevision ? mc_pb_revision_token($mcPbAccountConfig['currentSecret'], $mcPbAccountConfig['currentKeyId'], $r['pb_id'], $r['pb_row_revision']) : ''
 	);
 }
 
 echo json_encode(array(
 	"ok"       => true,
 	"count"    => count($rows),
+	"accountEditAvailable" => $mcPbCanIssueRevision && mc_pb_schema_ready($connect_db),
 	"syncedAt" => date("Y-m-d H:i:s"),
 	"rows"     => $rows
 ), JSON_UNESCAPED_UNICODE);
