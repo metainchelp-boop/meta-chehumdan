@@ -15,6 +15,10 @@ on:
         description: '실제 업로드는 UPLOAD 입력 (기본은 미리보기)'
         required: false
         default: ''
+      remote_dir_probe:
+        description: '읽기 전용 FTP 루트 후보(예: /www). 값을 넣은 실행은 업로드 금지'
+        required: false
+        default: ''
 
 concurrency: chehumdan-ftp-upload
 
@@ -66,10 +70,13 @@ jobs:
           USER: ${{ secrets.CHEHUMDAN_FTP_USER }}
           PASS: ${{ secrets.CHEHUMDAN_FTP_PASS }}
           REMOTE_DIR: ${{ secrets.CHEHUMDAN_FTP_DIR }}
+          REMOTE_DIR_PROBE: ${{ inputs.remote_dir_probe }}
         run: |
           set -e
           test -n "$HOST"
-          DIR="${REMOTE_DIR:-/www}"; DIR="${DIR%/}"
+          DIR="${REMOTE_DIR_PROBE:-${REMOTE_DIR:-/www}}"; DIR="${DIR%/}"
+          case "$DIR" in *..*) echo '::error::FTP 루트에 .. 을 사용할 수 없습니다.'; exit 1;; esac
+          case "$DIR" in /*|'') ;; *) DIR="/$DIR";; esac
           files=(
             lib/mc_point_bank_account.lib.php
             front/mc_point_bank_account_api.php
@@ -135,8 +142,14 @@ jobs:
           echo '::error::라이브 diff와 DDL/InnoDB/mode OFF를 먼저 확인하세요.'
           exit 1
 
+      - name: FTP 루트 probe 실행의 업로드 차단
+        if: ${{ inputs.confirm == 'UPLOAD' && inputs.remote_dir_probe != '' }}
+        run: |
+          echo '::error::remote_dir_probe가 있는 실행은 읽기 전용입니다.'
+          exit 1
+
       - name: 지정 파일만 업로드
-        if: ${{ inputs.confirm == 'UPLOAD' && inputs.baseline_confirm == 'VERIFIED' && inputs.ddl_confirm == 'DDL_OFF_VERIFIED' }}
+        if: ${{ inputs.confirm == 'UPLOAD' && inputs.baseline_confirm == 'VERIFIED' && inputs.ddl_confirm == 'DDL_OFF_VERIFIED' && inputs.remote_dir_probe == '' }}
         env:
           HOST: ${{ secrets.CHEHUMDAN_FTP_HOST }}
           USER: ${{ secrets.CHEHUMDAN_FTP_USER }}
@@ -166,7 +179,7 @@ jobs:
           done
 
       - name: 업로드 후 원격 파일 checksum 검증
-        if: ${{ inputs.confirm == 'UPLOAD' && inputs.baseline_confirm == 'VERIFIED' && inputs.ddl_confirm == 'DDL_OFF_VERIFIED' }}
+        if: ${{ inputs.confirm == 'UPLOAD' && inputs.baseline_confirm == 'VERIFIED' && inputs.ddl_confirm == 'DDL_OFF_VERIFIED' && inputs.remote_dir_probe == '' }}
         env:
           HOST: ${{ secrets.CHEHUMDAN_FTP_HOST }}
           USER: ${{ secrets.CHEHUMDAN_FTP_USER }}
