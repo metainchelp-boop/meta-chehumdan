@@ -80,6 +80,14 @@ jobs:
             admin/point_bank_stop_list.php
             data/private/.htaccess
           )
+          required_existing=(
+            admin/inc_point_bank_account_edit.php
+            mc_point_bank_api.php
+            admin/point_bank_list.php
+            admin/point_bank_wait_list.php
+            admin/point_bank_stop_list.php
+          )
+          missing_required=0
           mkdir -p live-backup
           echo '| 파일 | 라이브 SHA-256 | 배포본 SHA-256 |' >> "$GITHUB_STEP_SUMMARY"
           echo '|---|---|---|' >> "$GITHUB_STEP_SUMMARY"
@@ -94,6 +102,13 @@ jobs:
             elif [ "$rc" -eq 19 ] || [ "$rc" -eq 78 ]; then
               rm -f "live-backup/$p"
               live_sha='신규 파일'
+              for required in "${required_existing[@]}"; do
+                if [ "$p" = "$required" ]; then
+                  echo "::error::$p 는 라이브에 반드시 있어야 하지만 백업하지 못했습니다. FTP 루트를 확인하세요."
+                  live_sha='필수 라이브 파일 백업 실패'
+                  missing_required=1
+                fi
+              done
             else
               echo "::error::$p 라이브 백업 실패 (curl $rc)"
               exit 1
@@ -101,13 +116,17 @@ jobs:
             local_sha=$(sha256sum "$p" | awk '{print $1}')
             echo "| \`$p\` | $live_sha | $local_sha |" >> "$GITHUB_STEP_SUMMARY"
           done
+          if [ "$missing_required" -ne 0 ]; then
+            echo '::error::필수 라이브 기준선이 없으므로 미리보기와 업로드를 중단합니다.'
+            exit 1
+          fi
 
       - name: 라이브 백업 보관
         uses: actions/upload-artifact@v4
         with:
           name: point-bank-live-backup-${{ github.run_id }}
           path: live-backup
-          if-no-files-found: warn
+          if-no-files-found: error
           retention-days: 30
 
       - name: baseline 확인 없이 업로드 차단
