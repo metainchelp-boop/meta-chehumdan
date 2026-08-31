@@ -15,6 +15,10 @@ on:
         description: '실제 업로드는 UPLOAD 입력 (기본은 미리보기)'
         required: false
         default: ''
+      remote_dir_probe:
+        description: '읽기 전용 FTP 루트 후보(예: /www). 값을 넣은 실행은 업로드 금지'
+        required: false
+        default: ''
 
 concurrency: chehumdan-ftp-upload
 
@@ -66,10 +70,13 @@ jobs:
           USER: ${{ secrets.CHEHUMDAN_FTP_USER }}
           PASS: ${{ secrets.CHEHUMDAN_FTP_PASS }}
           REMOTE_DIR: ${{ secrets.CHEHUMDAN_FTP_DIR }}
+          REMOTE_DIR_PROBE: ${{ inputs.remote_dir_probe }}
         run: |
           set -e
           test -n "$HOST"
-          DIR="${REMOTE_DIR:-/www}"; DIR="${DIR%/}"
+          DIR="${REMOTE_DIR_PROBE:-${REMOTE_DIR:-/www}}"; DIR="${DIR%/}"
+          case "$DIR" in *..*) echo '::error::FTP 루트에 .. 을 사용할 수 없습니다.'; exit 1;; esac
+          case "$DIR" in /*|'') ;; *) DIR="/$DIR";; esac
           files=(
             lib/mc_point_bank_account.lib.php
             front/mc_point_bank_account_api.php
@@ -80,6 +87,14 @@ jobs:
             admin/point_bank_stop_list.php
             data/private/.htaccess
           )
+          required_existing=(
+            admin/inc_point_bank_account_edit.php
+            mc_point_bank_api.php
+            admin/point_bank_list.php
+            admin/point_bank_wait_list.php
+            admin/point_bank_stop_list.php
+          )
+          missing_required=0
           mkdir -p live-backup
           echo '| 파일 | 라이브 SHA-256 | 배포본 SHA-256 |' >> "$GITHUB_STEP_SUMMARY"
           echo '|---|---|---|' >> "$GITHUB_STEP_SUMMARY"
@@ -94,6 +109,13 @@ jobs:
             elif [ "$rc" -eq 19 ] || [ "$rc" -eq 78 ]; then
               rm -f "live-backup/$p"
               live_sha='신규 파일'
+              for required in "${required_existing[@]}"; do
+                if [ "$p" = "$required" ]; then
+                  echo "::error::$p 는 라이브에 반드시 있어야 하지만 백업하지 못했습니다. FTP 루트를 확인하세요."
+                  live_sha='필수 라이브 파일 백업 실패'
+                  missing_required=1
+                fi
+              done
             else
               echo "::error::$p 라이브 백업 실패 (curl $rc)"
               exit 1
@@ -101,13 +123,17 @@ jobs:
             local_sha=$(sha256sum "$p" | awk '{print $1}')
             echo "| \`$p\` | $live_sha | $local_sha |" >> "$GITHUB_STEP_SUMMARY"
           done
+          if [ "$missing_required" -ne 0 ]; then
+            echo '::error::필수 라이브 기준선이 없으므로 미리보기와 업로드를 중단합니다.'
+            exit 1
+          fi
 
       - name: 라이브 백업 보관
         uses: actions/upload-artifact@v4
         with:
           name: point-bank-live-backup-${{ github.run_id }}
           path: live-backup
-          if-no-files-found: warn
+          if-no-files-found: error
           retention-days: 30
 
       - name: baseline 확인 없이 업로드 차단
@@ -116,8 +142,14 @@ jobs:
           echo '::error::라이브 diff와 DDL/InnoDB/mode OFF를 먼저 확인하세요.'
           exit 1
 
+      - name: FTP 루트 probe 실행의 업로드 차단
+        if: ${{ inputs.confirm == 'UPLOAD' && inputs.remote_dir_probe != '' }}
+        run: |
+          echo '::error::remote_dir_probe가 있는 실행은 읽기 전용입니다.'
+          exit 1
+
       - name: 지정 파일만 업로드
-        if: ${{ inputs.confirm == 'UPLOAD' && inputs.baseline_confirm == 'VERIFIED' && inputs.ddl_confirm == 'DDL_OFF_VERIFIED' }}
+        if: ${{ inputs.confirm == 'UPLOAD' && inputs.baseline_confirm == 'VERIFIED' && inputs.ddl_confirm == 'DDL_OFF_VERIFIED' && inputs.remote_dir_probe == '' }}
         env:
           HOST: ${{ secrets.CHEHUMDAN_FTP_HOST }}
           USER: ${{ secrets.CHEHUMDAN_FTP_USER }}
@@ -147,7 +179,7 @@ jobs:
           done
 
       - name: 업로드 후 원격 파일 checksum 검증
-        if: ${{ inputs.confirm == 'UPLOAD' && inputs.baseline_confirm == 'VERIFIED' && inputs.ddl_confirm == 'DDL_OFF_VERIFIED' }}
+        if: ${{ inputs.confirm == 'UPLOAD' && inputs.baseline_confirm == 'VERIFIED' && inputs.ddl_confirm == 'DDL_OFF_VERIFIED' && inputs.remote_dir_probe == '' }}
         env:
           HOST: ${{ secrets.CHEHUMDAN_FTP_HOST }}
           USER: ${{ secrets.CHEHUMDAN_FTP_USER }}
