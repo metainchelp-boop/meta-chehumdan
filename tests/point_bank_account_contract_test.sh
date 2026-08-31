@@ -118,6 +118,7 @@ need ".github/workflows/point-bank-account-upload.yml" 'missing_required.*-ne 0'
 need ".github/workflows/point-bank-account-upload.yml" 'if-no-files-found:[[:space:]]*error' "라이브 백업이 비어도 workflow가 성공할 수 있습니다"
 need ".github/workflows/point-bank-account-upload.yml" 'remote_dir_probe' "FTP 루트를 쓰지 않고 진단할 읽기 전용 입력이 없습니다"
 need ".github/workflows/point-bank-account-upload.yml" 'remote_dir_probe.*!=.*' "FTP 루트 probe 실행이 업로드를 막지 않습니다"
+need ".github/workflows/point-bank-account-upload.yml" "@account-www.*home/hosting_users/.*USER.*/www" "Cafe24 계정 절대경로를 비밀 사용자명 노출 없이 진단할 수 없습니다"
 need ".github/workflows/point-bank-account-upload.yml" 'DDL_OFF_VERIFIED' "DDL·InnoDB·mode OFF 확인 없이 업로드할 수 있습니다"
 need ".github/workflows/point-bank-account-upload.yml" 'METACREW_POINT_BANK_HMAC_CURRENT_SECRET.*secrets\.' "HMAC secret이 Actions secret에서 주입되지 않습니다"
 need ".gitignore" 'data/private/mc_point_bank_account_secrets.php' "런타임 private config가 git에서 제외되지 않았습니다"
