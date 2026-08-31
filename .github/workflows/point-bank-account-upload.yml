@@ -145,3 +145,37 @@ jobs:
               -u "$USER:$PASS" -T "$p" "ftp://$HOST$DIR/$p"
             echo "✅ $p" >> "$GITHUB_STEP_SUMMARY"
           done
+
+      - name: 업로드 후 원격 파일 checksum 검증
+        if: ${{ inputs.confirm == 'UPLOAD' && inputs.baseline_confirm == 'VERIFIED' && inputs.ddl_confirm == 'DDL_OFF_VERIFIED' }}
+        env:
+          HOST: ${{ secrets.CHEHUMDAN_FTP_HOST }}
+          USER: ${{ secrets.CHEHUMDAN_FTP_USER }}
+          PASS: ${{ secrets.CHEHUMDAN_FTP_PASS }}
+          REMOTE_DIR: ${{ secrets.CHEHUMDAN_FTP_DIR }}
+        run: |
+          set -e
+          DIR="${REMOTE_DIR:-/www}"; DIR="${DIR%/}"
+          files=(
+            data/private/.htaccess
+            data/private/mc_point_bank_account_secrets.php
+            lib/mc_point_bank_account.lib.php
+            front/mc_point_bank_account_api.php
+            admin/inc_point_bank_account_edit.php
+            mc_point_bank_api.php
+            admin/point_bank_list.php
+            admin/point_bank_wait_list.php
+            admin/point_bank_stop_list.php
+          )
+          verify_dir=$(mktemp -d)
+          trap 'rm -rf "$verify_dir"' EXIT
+          for p in "${files[@]}"; do
+            mkdir -p "$verify_dir/$(dirname "$p")"
+            curl -sS --ftp-ssl --insecure --ftp-method nocwd --connect-timeout 20 \
+              -u "$USER:$PASS" "ftp://$HOST$DIR/$p" -o "$verify_dir/$p"
+            if ! cmp -s "$p" "$verify_dir/$p"; then
+              echo "::error::$p 업로드 후 원격 파일이 배포본과 일치하지 않습니다."
+              exit 1
+            fi
+            echo "✅ 원격 일치: $p" >> "$GITHUB_STEP_SUMMARY"
+          done

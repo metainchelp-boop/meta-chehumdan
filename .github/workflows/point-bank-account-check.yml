@@ -9,6 +9,9 @@ on:
       - 'admin/point_bank_*.php'
       - 'mc_point_bank_api.php'
       - 'docs/sql/2026-08-29-point-bank-account-correction.sql'
+      - 'scripts/build_point_bank_private_config.php'
+      - 'data/private/.htaccess'
+      - '.gitignore'
       - 'tests/point_bank_*'
       - '.github/workflows/point-bank-account-*.yml'
   workflow_dispatch:
