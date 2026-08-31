@@ -16,7 +16,7 @@ on:
         required: false
         default: ''
       remote_dir_probe:
-        description: '읽기 전용 FTP 루트 후보(예: /www). 값을 넣은 실행은 업로드 금지'
+        description: '읽기 전용 FTP 루트 후보(/www, @account-www, @home-account-www). probe 실행은 업로드 금지'
         required: false
         default: ''
 
@@ -75,6 +75,9 @@ jobs:
           set -e
           test -n "$HOST"
           DIR="${REMOTE_DIR_PROBE:-${REMOTE_DIR:-/www}}"; DIR="${DIR%/}"
+          case "$USER" in *[!A-Za-z0-9._-]*) echo '::error::FTP 사용자명 형식이 안전하지 않습니다.'; exit 1;; esac
+          if [ "$DIR" = '@account-www' ]; then DIR="/home/hosting_users/$USER/www"; fi
+          if [ "$DIR" = '@home-account-www' ]; then DIR="/home/$USER/www"; fi
           case "$DIR" in *..*) echo '::error::FTP 루트에 .. 을 사용할 수 없습니다.'; exit 1;; esac
           case "$DIR" in /*|'') ;; *) DIR="/$DIR";; esac
           files=(
