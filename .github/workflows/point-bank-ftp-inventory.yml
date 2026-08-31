@@ -1,0 +1,85 @@
+name: Cafe24 FTP 웹루트 읽기 전용 진단
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency: chehumdan-ftp-inventory
+
+jobs:
+  inventory:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: FTP 디렉터리 목록만 수집
+        env:
+          HOST: ${{ secrets.CHEHUMDAN_FTP_HOST }}
+          USER: ${{ secrets.CHEHUMDAN_FTP_USER }}
+          PASS: ${{ secrets.CHEHUMDAN_FTP_PASS }}
+          CONFIGURED_DIR: ${{ secrets.CHEHUMDAN_FTP_DIR }}
+        run: |
+          set -euo pipefail
+          test -n "$HOST"
+          test -n "$USER"
+          test -n "$PASS"
+
+          inventory_dir=$(mktemp -d)
+          trap 'rm -rf "$inventory_dir"' EXIT
+
+          paths=(
+            '/'
+            '/www'
+            '/html'
+            '/htdocs'
+            '/public_html'
+            '/web'
+            '/home'
+            "/home/$USER"
+            "/home/$USER/www"
+            "/home/hosting_users/$USER"
+            "/home/hosting_users/$USER/www"
+          )
+          if [ -n "${CONFIGURED_DIR:-}" ]; then
+            paths+=("$CONFIGURED_DIR")
+          fi
+
+          found=0
+          index=0
+          for path in "${paths[@]}"; do
+            index=$((index + 1))
+            output="$inventory_dir/path-$index.txt"
+            rc=0
+            curl -sS --ftp-ssl --insecure --list-only --connect-timeout 20 --max-time 30 \
+              -u "$USER:$PASS" "ftp://$HOST${path%/}/" -o "$output" || rc=$?
+            if [ "$rc" -eq 0 ]; then
+              found=$((found + 1))
+              # 제어문자와 경로 이동 표식을 제거한 파일명 목록만 보관한다.
+              LC_ALL=C tr -cd '\11\12\15\40-\176' < "$output" \
+                | sed -E '/^(\.|\.\.)$/d; s#^/+##; /(^|\/)\.\.($|\/)/d' \
+                > "$output.safe"
+              mv "$output.safe" "$output"
+              printf 'path-%d: LIST 성공 (%d개 항목)\n' \
+                "$index" "$(wc -l < "$output" | tr -d ' ')" >> "$GITHUB_STEP_SUMMARY"
+            else
+              rm -f "$output"
+              printf 'path-%d: LIST 실패 (curl %d)\n' "$index" "$rc" >> "$GITHUB_STEP_SUMMARY"
+            fi
+          done
+
+          if [ "$found" -eq 0 ]; then
+            echo '::error::현재 FTP 계정으로 조회 가능한 후보 디렉터리가 없습니다.'
+            exit 1
+          fi
+
+          cp -R "$inventory_dir" ./ftp-inventory
+          echo '이 작업은 FTP LIST/GET만 사용하며 원격 파일을 생성·수정하지 않습니다.' >> "$GITHUB_STEP_SUMMARY"
+
+      - name: 진단 목록 보관
+        uses: actions/upload-artifact@v4
+        with:
+          name: cafe24-ftp-inventory-${{ github.run_id }}
+          path: ftp-inventory
+          if-no-files-found: error
+          retention-days: 1
