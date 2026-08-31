@@ -18,6 +18,26 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
+      - name: GitHub 실행기 허용 IP 확인
+        if: ${{ inputs.wait_for_allowlist == 'WAIT' }}
+        run: |
+          set -euo pipefail
+          runner_ip=$(curl -fsS --connect-timeout 10 --max-time 15 https://api.ipify.org)
+          case "$runner_ip" in
+            *[!0-9.]*) echo '::error::GitHub 실행기 IPv4를 확인하지 못했습니다.'; exit 1;;
+          esac
+          printf '%s\n' "$runner_ip" > runner-ip.txt
+          echo "::notice::GitHub 실행기 허용 IP: $runner_ip"
+
+      - name: 허용 IP 임시 보관
+        if: ${{ inputs.wait_for_allowlist == 'WAIT' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: cafe24-ftp-runner-ip-${{ github.run_id }}
+          path: runner-ip.txt
+          if-no-files-found: error
+          retention-days: 1
+
       - name: FTP 디렉터리 목록만 수집
         env:
           HOST: ${{ secrets.CHEHUMDAN_FTP_HOST }}
@@ -35,12 +55,8 @@ jobs:
           trap 'rm -rf "$inventory_dir"' EXIT
 
           if [ "$WAIT_FOR_ALLOWLIST" = 'WAIT' ]; then
-            runner_ip=$(curl -fsS --connect-timeout 10 --max-time 15 https://api.ipify.org)
-            case "$runner_ip" in
-              *[!0-9.]*) echo '::error::GitHub 실행기 IPv4를 확인하지 못했습니다.'; exit 1;;
-            esac
+            runner_ip=$(cat runner-ip.txt)
             echo "GitHub 실행기 허용 IP: $runner_ip" >> "$GITHUB_STEP_SUMMARY"
-            echo "::notice::GitHub 실행기 허용 IP: $runner_ip"
 
             candidate_dirs=(
               ''
