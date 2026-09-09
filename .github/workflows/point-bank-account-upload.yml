@@ -19,6 +19,10 @@ on:
         description: '읽기 전용 FTP 루트 후보(/www, @account-www, @home-account-www). probe 실행은 업로드 금지'
         required: false
         default: ''
+      dir_scan:
+        description: '읽기 전용 웹루트 일괄 탐색. SCAN 입력 시 후보를 순회해 필수 파일 발견 수만 보고하고 종료(업로드 금지)'
+        required: false
+        default: ''
 
 concurrency: chehumdan-ftp-upload
 
@@ -64,7 +68,43 @@ jobs:
               -u METACREW_POINT_BANK_HMAC_PREVIOUS_SECRET \
               php -r 'require "lib/mc_point_bank_account.lib.php"; exit(mc_pb_protocol_self_test(mc_pb_source_config()) ? 0 : 1);'
 
+      - name: 웹루트 일괄 탐색 (읽기 전용)
+        if: ${{ inputs.dir_scan == 'SCAN' }}
+        env:
+          HOST: ${{ secrets.CHEHUMDAN_FTP_HOST }}
+          USER: ${{ secrets.CHEHUMDAN_FTP_USER }}
+          PASS: ${{ secrets.CHEHUMDAN_FTP_PASS }}
+          REMOTE_DIR: ${{ secrets.CHEHUMDAN_FTP_DIR }}
+        run: |
+          set +e
+          # 이 저장소는 공개다. 디렉터리 목록·실제 경로 문자열은 로그에 남기지 않고
+          # 「후보 라벨 → 필수 파일 발견 수」만 남긴다.
+          probe=(admin/inc_point_bank_account_edit.php mc_point_bank_api.php admin/point_bank_list.php admin/point_bank_wait_list.php admin/point_bank_stop_list.php)
+          labels=('설정된-시크릿-경로' '로그인-루트' '/www' '/html' '/public_html' '/web' '/htdocs' '/home/hosting_users/USER/www' '/home/USER/www' '/www/html')
+          dirs=("${REMOTE_DIR%/}" '' '/www' '/html' '/public_html' '/web' '/htdocs' "/home/hosting_users/$USER/www" "/home/$USER/www" '/www/html')
+          echo '| 후보 | 필수 파일 발견 |' >> "$GITHUB_STEP_SUMMARY"
+          echo '|---|---|' >> "$GITHUB_STEP_SUMMARY"
+          best=''
+          for i in "${!dirs[@]}"; do
+            d="${dirs[$i]}"; label="${labels[$i]}"
+            found=0
+            for f in "${probe[@]}"; do
+              curl -sS --ftp-ssl --insecure --ftp-method nocwd --connect-timeout 12 \
+                -u "$USER:$PASS" "ftp://$HOST$d/$f" -o /dev/null >/dev/null 2>&1 && found=$((found+1))
+            done
+            echo "후보 [$label] -> 필수 5개 중 $found 개 발견"
+            echo "| $label | $found / 5 |" >> "$GITHUB_STEP_SUMMARY"
+            if [ "$found" -eq 5 ]; then best="$label"; fi
+          done
+          if [ -n "$best" ]; then
+            echo "::notice::웹루트를 찾았습니다 -> [$best] (필수 파일 5/5)"
+          else
+            echo "::warning::필수 파일 5개를 모두 가진 후보가 없습니다. FTP 계정이 다른 사이트일 수 있습니다."
+          fi
+          exit 0
+
       - name: 라이브 파일 백업·checksum 비교
+        if: ${{ inputs.dir_scan != 'SCAN' }}
         env:
           HOST: ${{ secrets.CHEHUMDAN_FTP_HOST }}
           USER: ${{ secrets.CHEHUMDAN_FTP_USER }}
@@ -132,6 +172,7 @@ jobs:
           fi
 
       - name: 라이브 백업 보관
+        if: ${{ inputs.dir_scan != 'SCAN' }}
         uses: actions/upload-artifact@v4
         with:
           name: point-bank-live-backup-${{ github.run_id }}
@@ -152,7 +193,7 @@ jobs:
           exit 1
 
       - name: 지정 파일만 업로드
-        if: ${{ inputs.confirm == 'UPLOAD' && inputs.baseline_confirm == 'VERIFIED' && inputs.ddl_confirm == 'DDL_OFF_VERIFIED' && inputs.remote_dir_probe == '' }}
+        if: ${{ inputs.confirm == 'UPLOAD' && inputs.baseline_confirm == 'VERIFIED' && inputs.ddl_confirm == 'DDL_OFF_VERIFIED' && inputs.remote_dir_probe == '' && inputs.dir_scan != 'SCAN' }}
         env:
           HOST: ${{ secrets.CHEHUMDAN_FTP_HOST }}
           USER: ${{ secrets.CHEHUMDAN_FTP_USER }}
@@ -182,7 +223,7 @@ jobs:
           done
 
       - name: 업로드 후 원격 파일 checksum 검증
-        if: ${{ inputs.confirm == 'UPLOAD' && inputs.baseline_confirm == 'VERIFIED' && inputs.ddl_confirm == 'DDL_OFF_VERIFIED' && inputs.remote_dir_probe == '' }}
+        if: ${{ inputs.confirm == 'UPLOAD' && inputs.baseline_confirm == 'VERIFIED' && inputs.ddl_confirm == 'DDL_OFF_VERIFIED' && inputs.remote_dir_probe == '' && inputs.dir_scan != 'SCAN' }}
         env:
           HOST: ${{ secrets.CHEHUMDAN_FTP_HOST }}
           USER: ${{ secrets.CHEHUMDAN_FTP_USER }}
