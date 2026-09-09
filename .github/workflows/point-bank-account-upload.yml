@@ -98,9 +98,39 @@ jobs:
           done
           if [ -n "$best" ]; then
             echo "::notice::웹루트를 찾았습니다 -> [$best] (필수 파일 5/5)"
-          else
-            echo "::warning::필수 파일 5개를 모두 가진 후보가 없습니다. FTP 계정이 다른 사이트일 수 있습니다."
+            exit 0
           fi
+          echo "::warning::경로 후보로는 못 찾았다. 전송 방식(ftp-method)과 계정 자체를 가른다."
+          # 후보를 다 돌아도 0/5 라면 「경로가 틀렸다」가 아니라
+          # ① 전송 방식(nocwd)이 이 서버에서 안 먹거나 ② 계정이 다른 사이트일 수 있다.
+          # 이 사이트에 반드시 있는 파일(index.php)로 두 축을 가른다.
+          echo '' >> "$GITHUB_STEP_SUMMARY"
+          echo '### 전송 방식 · 계정 판별' >> "$GITHUB_STEP_SUMMARY"
+          echo '| 방식 | 위치 | index.php | mc_point_bank_api.php |' >> "$GITHUB_STEP_SUMMARY"
+          echo '|---|---|---|---|' >> "$GITHUB_STEP_SUMMARY"
+          for m in multicwd singlecwd nocwd; do
+            for pair in "로그인루트|" "www|/www"; do
+              plabel="${pair%%|*}"; pdir="${pair#*|}"
+              r1='없음'; r2='없음'
+              curl -sS --ftp-ssl --insecure --ftp-method "$m" --connect-timeout 12 \
+                -u "$USER:$PASS" "ftp://$HOST$pdir/index.php" -o /dev/null >/dev/null 2>&1 && r1='있음'
+              curl -sS --ftp-ssl --insecure --ftp-method "$m" --connect-timeout 12 \
+                -u "$USER:$PASS" "ftp://$HOST$pdir/mc_point_bank_api.php" -o /dev/null >/dev/null 2>&1 && r2='있음'
+              echo "방식 $m / 위치 $plabel -> index.php $r1 · mc_point_bank_api.php $r2"
+              echo "| $m | $plabel | $r1 | $r2 |" >> "$GITHUB_STEP_SUMMARY"
+            done
+          done
+          # 로그인 루트에 무엇이 있는지 — 이름은 공개 로그에 남기지 않고 개수와 기대 항목 유무만.
+          for m in multicwd nocwd; do
+            listing=$(curl -sS --ftp-ssl --insecure --ftp-method "$m" --connect-timeout 12 \
+              -u "$USER:$PASS" --list-only "ftp://$HOST/" 2>/dev/null)
+            n=$(printf '%s' "$listing" | grep -c . )
+            has_www=$(printf '%s' "$listing" | grep -cx 'www' )
+            has_index=$(printf '%s' "$listing" | grep -cx 'index.php' )
+            has_admin=$(printf '%s' "$listing" | grep -cx 'admin' )
+            echo "방식 $m 로그인루트 목록: 항목 $n 개 · www $has_www · index.php $has_index · admin $has_admin"
+            echo "| 목록($m) | 로그인루트 | 항목 $n 개 | www:$has_www index.php:$has_index admin:$has_admin |" >> "$GITHUB_STEP_SUMMARY"
+          done
           exit 0
 
       - name: 라이브 파일 백업·checksum 비교
